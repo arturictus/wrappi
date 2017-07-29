@@ -5,7 +5,7 @@ module Wrappi
     class JsonParseError < StandardError; end
     class NotAuthorizedAccessError < StandardError; end
 
-    include ActiveSupport::Configurable
+    include Fusu::Configurable
 
     # Not verify example
     # OpenSSL::SSL::SSLContext.new.tap do |ctx|
@@ -14,6 +14,10 @@ module Wrappi
     config_accessor :ssl_context
     config_accessor(:use_ssl_context) { false }
     config_accessor(:logger) { Logger.new(STDOUT) }
+    config_accessor(:header) do
+      { 'Content-Type' => 'application/json',
+        'Accept' => 'application/json'}
+    end
 
     def self.setup
       yield(self)
@@ -55,11 +59,7 @@ module Wrappi
     end
 
     def self.http_with_headers
-      http.headers(
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/json',
-        'token_type' => 'bearer'
-      )
+      http.headers(headers)
     end
 
     def self.params_with_defaults(params = {})
