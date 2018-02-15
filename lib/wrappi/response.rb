@@ -1,14 +1,15 @@
 module Wrappi
   class Response
-    attr_reader :request
+    attr_reader :request, :endpoint
     alias_method :call, :request
 
     def initialize(endpoint, &block)
+      @endpoint = endpoint
       @request = block.call
     end
 
     def body
-      @body ||= JSON[call.body.to_s]
+      @body ||= JSON.parse(call.body.to_s)
     end
 
     def success?

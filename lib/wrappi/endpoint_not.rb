@@ -12,10 +12,6 @@ module Wrappi
       new(*args).call
     end
 
-    def metadata
-      @metadata = Wrappi::Metadata.new(self)
-    end
-
     def url
       URI.join(client.domain, path)
     end
@@ -25,7 +21,7 @@ module Wrappi
     end
 
     def call
-      Response.new(self) do
+      Response.new do
         client.http.send(verb, url, params)
       end
     end
