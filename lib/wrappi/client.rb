@@ -1,3 +1,4 @@
+require 'logger'
 module Wrappi
   # This class is expected to handle all the configurations for your main module
   class Client
@@ -14,7 +15,7 @@ module Wrappi
     config_accessor :ssl_context
     config_accessor(:use_ssl_context) { false }
     config_accessor(:logger) { Logger.new(STDOUT) }
-    config_accessor(:header) do
+    config_accessor(:headers) do
       { 'Content-Type' => 'application/json',
         'Accept' => 'application/json'}
     end
