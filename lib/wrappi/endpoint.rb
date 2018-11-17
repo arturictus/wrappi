@@ -1,4 +1,5 @@
 require 'wrappi/endpoint/dsl'
+require 'wrappi/response'
 module Wrappi
   # create a new endpoint by setting the basic configuration like verb, path,
   # params, headers, etc
@@ -13,9 +14,9 @@ module Wrappi
       end
     end
 
-    attr_reader :params, :options
-    def initialize(params = {}, options = {})
-      @params = params
+    attr_reader :input_params, :options
+    def initialize(input_params = {}, options = {})
+      @input_params = input_params
       @options = options
     end
 
@@ -23,8 +24,8 @@ module Wrappi
       new(*args).call
     end
 
-    def metadata
-      @metadata = Wrappi::Metadata.new(self)
+    def params
+      input_params
     end
 
     def url
@@ -36,6 +37,6 @@ module Wrappi
         client.http.send(verb, url, params)
       end
     end
+    alias_method :response, :call
   end
 end
-require 'wrappi/endpoint/dsl'

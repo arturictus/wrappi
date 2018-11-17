@@ -50,9 +50,12 @@ module Wrappi
     end
 
     module InstConfig
+      def config
+        self.class.config
+      end
       DSL::SETUPS.each do |m|
         define_method(m) do
-          extract_config(self.class.config.fetch(m))
+          extract_config(config.fetch(m))
         end
       end
 

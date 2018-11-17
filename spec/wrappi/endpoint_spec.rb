@@ -23,7 +23,7 @@ module Wrappi
 
       it 'blocks as configs' do
         klass = Class.new(described_class) do
-          client Github
+          client Local
           verb :post
           path do
             "/users/#{some_id}"
@@ -37,7 +37,9 @@ module Wrappi
         inst = klass.new()
         expect(inst.verb).to eq :post
         expect(inst.path).to eq '/users/10'
-        expect(inst.url.to_s).to eq 'https://api.github.com/users/10'
+        # expect(inst.url.to_s).to eq 'http://localhost:9873/user/⁄s/10'
+        expect(inst.response).to eq 'http://localhost:9873/users/10'
+
       end
     end
   end
