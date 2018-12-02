@@ -13,7 +13,7 @@ shared_examples 'request_examples' do
     it do
       expect(subject.response.status).to eq 200
       expect(subject.response.success?).to be true
-      expect(subject.response.body.fetch("foo")).to eq 'baz'
+      expect(subject.response.body.dig("params", "foo")).to eq 'baz'
     end
   end
 end

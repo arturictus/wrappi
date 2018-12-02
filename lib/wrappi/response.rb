@@ -15,7 +15,7 @@ module Wrappi
     alias_method :call, :request
 
     def body
-      @body ||= request.parse
+      @body ||= JSON.parse(raw_body)
     end
 
     def success?
@@ -27,7 +27,7 @@ module Wrappi
     end
 
     def raw_body
-      request.to_s
+      @raw_body ||= request.to_s
     end
 
     def uri
