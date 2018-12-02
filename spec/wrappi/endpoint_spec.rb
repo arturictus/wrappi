@@ -41,6 +41,21 @@ module Wrappi
         expect(inst.response).to eq 'http://localhost:9873/users/10'
 
       end
+      it 'default params' do
+        def_params = { name: 'foo' }
+        klass = Class.new(described_class) do
+          client Github
+          verb :get
+          path "/users"
+          default_params def_params
+        end
+
+        inst = klass.new()
+        expect(inst.verb).to eq :get
+        expect(inst.path).to eq '/users'
+        expect(inst.url.to_s).to eq 'https://api.github.com/users'
+        expect(inst.params).to eq def_params
+      end
     end
   end
 end
