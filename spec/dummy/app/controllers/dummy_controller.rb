@@ -1,10 +1,11 @@
 class DummyController < ApplicationController
 
-  def get_test
+  def test_request
     render json: debug_request
   end
-  def post_test
-    render json: debug_request
+
+  def test_redirect
+    redirect_to :test_request
   end
 
   private
@@ -15,8 +16,8 @@ class DummyController < ApplicationController
         method: request.method,
         url: request.url,
         path: request.path,
-        content_type: headers["Content-Type"],
-        accept: headers['Accept'],
+        content_type: request.env["CONTENT_TYPE"],
+        accept: request.env['HTTP_ACCEPT'],
         env: request.env.select {|k,v| k.match("^HTTP.*|^CONTENT.*|^REMOTE.*|^REQUEST.*|^AUTHORIZATION.*|^SCRIPT.*|^SERVER.*") }
       },
       params: params.reject{ |k, v| ['controller', 'action'].include?(k) }

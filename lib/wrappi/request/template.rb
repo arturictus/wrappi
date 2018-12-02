@@ -19,12 +19,11 @@ module Wrappi
       end
 
       def http
-        # TODO: build here the http instead of in client.
-        # that will allow us to override the client default configurations
-        # - basic auth https://github.com/httprb/http/wiki/Authorization-Header
-        # - headers
-        # - follow redirects https://github.com/httprb/http/wiki/Redirects
-        client.http
+        h = HTTP.timeout(client.timeout)
+                .headers(endpoint.headers)
+        h = h.follow() if endpoint.follow_redirects
+        h = h.basic_auth(endpoint.basic_auth) if endpoint.basic_auth
+        h
       end
 
       def call

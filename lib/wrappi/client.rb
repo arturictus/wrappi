@@ -55,14 +55,6 @@ module Wrappi
       Pathname.new(File.expand_path('../../', __FILE__))
     end
 
-    def self.http
-      HTTP.timeout(timeout)
-    end
-
-    def self.http_with_headers
-      http.headers(headers)
-    end
-
     def self.params_with_defaults(params = {})
       if self.use_ssl_context
         fail "[#{self}] Bad configuration: You set `use_ssl_context` but did not provide `ssl_context`" unless self.ssl_context

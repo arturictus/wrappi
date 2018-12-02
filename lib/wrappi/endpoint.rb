@@ -3,13 +3,17 @@ module Wrappi
   # TODO
   # - basic auth
   # - add headers
-  class Endpoint < Miller.base(:verb, :client, :path, :default_params,
-      default_config: {
-        verb: :get,
-        client: proc { raise 'client not set' },
-        path: proc { raise 'path not defined' },
-        default_params: {}
-      }
+  class Endpoint < Miller.base(
+    :verb, :client, :path, :default_params,
+    :headers, :follow_redirects, :basic_auth,
+    default_config: {
+      verb: :get,
+      client: proc { raise 'client not set' },
+      path: proc { raise 'path not defined' },
+      default_params: {},
+      headers: proc { client.headers },
+      follow_redirects: true
+    }
   )
     attr_reader :input_params, :options
     def initialize(input_params = {}, options = {})
