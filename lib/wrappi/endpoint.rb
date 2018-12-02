@@ -1,21 +1,17 @@
-require 'wrappi/endpoint/dsl'
+#require 'wrappi/endpoint/dsl'
 module Wrappi
   # create a new endpoint by setting the basic configuration like verb, path,
   # params, headers, etc
-  class Endpoint
-    include InstConfig
+  class Endpoint < Miller.base(:verb, :client, :path, :default_params,
+      verb: :get,
+      client: proc { raise 'client not set' },
+      path: proc { raise 'path not defined' },
+      default_params: {}
+  )
 
-    def self.inherited(subclass)
-      subclass.extend Endpoint::KlassDSL
-      return unless self < Wrappi::Endpoint
-      unless dsl.config.empty?
-        subclass._set_config_from_inheritance(config)
-      end
-    end
-
-    attr_reader :params, :options
-    def initialize(params = {}, options = {})
-      @params = params
+    attr_reader :input_params, :options
+    def initialize(input_params = {}, options = {})
+      @input_params = input_params
       @options = options
     end
 
@@ -23,12 +19,18 @@ module Wrappi
       new(*args).call
     end
 
-    def metadata
-      @metadata = Wrappi::Metadata.new(self)
-    end
-
     def url
       URI.join(client.domain, path)
+    end
+
+    # TODO find a way to be able to modify params with a callback
+    # can be overriding a method or adding a config
+    def params
+      processed_params
+    end
+
+    def processed_params
+      default_params.merge(input_params)
     end
 
     def call
@@ -38,4 +40,3 @@ module Wrappi
     end
   end
 end
-require 'wrappi/endpoint/dsl'

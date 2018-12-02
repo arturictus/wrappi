@@ -1,6 +1,7 @@
 require "wrappi/version"
 require 'http'
 require 'fusu'
+require 'miller'
 
 module Wrappi
   # Your code goes here...
