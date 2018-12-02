@@ -1,4 +1,7 @@
 module Wrappi
+  # Wrapper around HTTP::Response
+  # check documentation at:
+  # https://github.com/httprb/http/wiki/Response-Handling
   class Response
     attr_reader :block
 
@@ -12,15 +15,27 @@ module Wrappi
     alias_method :call, :request
 
     def body
-      @body ||= JSON.parse(call.body.to_s)
+      @body ||= request.parse
     end
 
     def success?
-      request.status < 300 && request.status >= 200
+      request.code < 300 && request.code >= 200
     end
 
     def error?
       !success?
+    end
+
+    def raw_body
+      request.to_s
+    end
+
+    def uri
+      request.uri.to_s
+    end
+
+    def status
+      request.code
     end
 
     def method_missing(method_name, *arguments, &block)
