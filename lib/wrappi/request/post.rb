@@ -1,8 +1,8 @@
 module Wrappi
   class Request
-    class Get < Template
+    class Post < Template
       def call
-        client.http.get(url, params: params)
+        client.http.post(url, json: params)
       end
     end
   end

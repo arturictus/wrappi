@@ -37,8 +37,7 @@ module Wrappi
         inst = klass.new()
         expect(inst.verb).to eq :post
         expect(inst.path).to eq '/users/10'
-        # expect(inst.url.to_s).to eq 'http://localhost:9873/user/⁄s/10'
-        expect(inst.response).to eq 'http://localhost:9873/users/10'
+        expect(inst.response).to be_a Wrappi::Response
 
       end
       it 'default params' do
