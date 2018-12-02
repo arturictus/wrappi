@@ -9,6 +9,5 @@ end
 
 require 'wrappi/client'
 require 'wrappi/config'
-require 'wrappi/metadata'
 require 'wrappi/endpoint'
 require 'wrappi/request'
