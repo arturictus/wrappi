@@ -23,7 +23,7 @@ module Wrappi
 
       it 'blocks as configs' do
         klass = Class.new(described_class) do
-          client Local
+          client Dummy
           verb :post
           path do
             "/users/#{some_id}"
