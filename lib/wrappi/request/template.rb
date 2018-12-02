@@ -18,6 +18,14 @@ module Wrappi
         endpoint.url
       end
 
+      def http
+        # TODO: build here the http instead of client in client.
+        # that will allow us to override the client default configurations
+        # - basic auth
+        # - headers
+        client.http
+      end
+
       def call
         raise NotImplementedError
       end

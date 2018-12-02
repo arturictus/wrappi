@@ -1,7 +1,8 @@
 require 'wrappi/response'
 module Wrappi
-  # create a new endpoint by setting the basic configuration like verb, path,
-  # params, headers, etc
+  # TODO
+  # - basic auth
+  # - add headers
   class Endpoint < Miller.base(:verb, :client, :path, :default_params,
       default_config: {
         verb: :get,
@@ -35,7 +36,7 @@ module Wrappi
     end
 
     def response
-      @response ||= Response.new(self) do
+      @response ||= Response.new do
                       Request.new(self).call
                     end
     end
