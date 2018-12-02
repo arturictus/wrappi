@@ -3,7 +3,9 @@ module Github
     class Show < Wrappi::Endpoint
       client Github
       verb :get
-      path "/users/#{_params[:username]}"
+      path do
+        "/users/#{_params[:username]}"
+      end
       # params {}
     end
 

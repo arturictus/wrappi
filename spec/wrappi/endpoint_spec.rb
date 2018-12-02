@@ -23,7 +23,7 @@ module Wrappi
 
       it 'blocks as configs' do
         klass = Class.new(described_class) do
-          client Github
+          client Local
           verb :post
           path do
             "/users/#{some_id}"
@@ -37,7 +37,23 @@ module Wrappi
         inst = klass.new()
         expect(inst.verb).to eq :post
         expect(inst.path).to eq '/users/10'
-        expect(inst.url.to_s).to eq 'https://api.github.com/users/10'
+        expect(inst.response).to be_a Wrappi::Response
+
+      end
+      it 'default params' do
+        def_params = { name: 'foo' }
+        klass = Class.new(described_class) do
+          client Github
+          verb :get
+          path "/users"
+          default_params def_params
+        end
+
+        inst = klass.new()
+        expect(inst.verb).to eq :get
+        expect(inst.path).to eq '/users'
+        expect(inst.url.to_s).to eq 'https://api.github.com/users'
+        expect(inst.params).to eq def_params
       end
     end
   end

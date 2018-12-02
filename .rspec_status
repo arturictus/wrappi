@@ -1,4 +1,0 @@
-example_id                            | status | run_time        |
-------------------------------------- | ------ | --------------- |
-./spec/wrappi/endpoint_spec.rb[1:1:1] | passed | 0.00113 seconds |
-./spec/wrappi/endpoint_spec.rb[1:1:2] | passed | 0.00038 seconds |
