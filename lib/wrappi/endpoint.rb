@@ -1,30 +1,15 @@
-<<<<<<< HEAD
-require 'wrappi/endpoint/dsl'
 require 'wrappi/response'
-=======
-#require 'wrappi/endpoint/dsl'
->>>>>>> miller
 module Wrappi
   # create a new endpoint by setting the basic configuration like verb, path,
   # params, headers, etc
   class Endpoint < Miller.base(:verb, :client, :path, :default_params,
-      verb: :get,
-      client: proc { raise 'client not set' },
-      path: proc { raise 'path not defined' },
-      default_params: {}
+      default_config: {
+        verb: :get,
+        client: proc { raise 'client not set' },
+        path: proc { raise 'path not defined' },
+        default_params: {}
+      }
   )
-
-<<<<<<< HEAD
-    def self.inherited(subclass)
-      subclass.extend Endpoint::KlassDSL
-      return unless self < Wrappi::Endpoint
-      unless dsl.config.empty?
-        subclass._set_config_from_inheritance(config)
-      end
-    end
-
-=======
->>>>>>> miller
     attr_reader :input_params, :options
     def initialize(input_params = {}, options = {})
       @input_params = input_params
@@ -35,13 +20,6 @@ module Wrappi
       new(*args).call
     end
 
-<<<<<<< HEAD
-    def params
-      input_params
-    end
-
-=======
->>>>>>> miller
     def url
       URI.join(client.domain, path)
     end
@@ -56,11 +34,15 @@ module Wrappi
       default_params.merge(input_params)
     end
 
-    def call
-      Response.new(self) do
-        client.http.send(verb, url, params)
-      end
+    def response
+      @response ||= Response.new(self) do
+                      Request.new(self).call
+                    end
     end
-    alias_method :response, :call
+    alias_method :call, :response
+
+    def body; response.body end
+    def success?; response.success? end
+    def status; response.status end
   end
 end

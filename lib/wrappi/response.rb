@@ -5,7 +5,7 @@ module Wrappi
 
     def initialize(endpoint, &block)
       @endpoint = endpoint
-      @request = block.call
+      @request = block.call # TODO move outside initialize
     end
 
     def body
@@ -14,6 +14,10 @@ module Wrappi
 
     def success?
       request.status < 300 && request.status >= 200
+    end
+
+    def error?
+      !success?
     end
 
     def method_missing(method_name, *arguments, &block)
