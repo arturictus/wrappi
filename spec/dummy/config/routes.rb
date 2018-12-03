@@ -4,5 +4,7 @@ Rails.application.routes.draw do
   # get '/dummy', to: "dummy#get_test"
   post '/dummy', to: "dummy#test_request"
   get '/dummy', to: "dummy#test_request"
+  post '/dummy/:id', to: "dummy#test_request"
+  get '/dummy/:id', to: "dummy#test_request"
   get '/dummy/redirect', to: "dummy#test_redirect"
 end

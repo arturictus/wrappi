@@ -23,4 +23,27 @@ shared_examples 'request_examples' do
       expect(response.body.dig("params", "foo")).to eq 'baz'
     end
   end
+
+  context 'redirects' do
+    it 'by default follows redirects' do
+      subject.path = '/dummy/redirect'
+      expect(response.status).to eq 200
+      expect(response.success?).to be true
+      expect(response.body).to be_a Hash
+      expect(response.body.dig('request', 'path')).to eq '/dummy/redirect'
+    end
+  end
+
+  context 'with interpolated in url params' do
+    let(:params) { { foo: :baz, id: 1 } }
+    it 'sends expected url and params' do
+      subject.path = '/dummy/:id'
+      expect(response.status).to eq 200
+      expect(response.success?).to be true
+      expect(response.body.dig("params", "foo")).to eq 'baz'
+      expect(response.body.dig('request', 'path')).to eq '/dummy/1'
+      expect(response.body.dig('params', "id")).to eq "1"
+    end
+  end
+
 end
