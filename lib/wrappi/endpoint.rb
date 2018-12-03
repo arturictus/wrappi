@@ -8,8 +8,8 @@ module Wrappi
     :headers, :follow_redirects, :basic_auth,
     default_config: {
       verb: :get,
-      client: proc { raise 'client not set' },
-      path: proc { raise 'path not defined' },
+      client: proc { raise 'client not set' }, # TODO: add proper error
+      path: proc { raise 'path not defined' }, # TODO: add proper error
       default_params: {},
       headers: proc { client.headers },
       follow_redirects: true
@@ -25,14 +25,18 @@ module Wrappi
       new(*args).call
     end
 
+    def path_gen
+      @path_gen ||= PathGen.new(path, processed_params)
+    end
+
     def url
-      URI.join(client.domain, path)
+      URI.join(client.domain, path_gen.path)
     end
 
     # TODO find a way to be able to modify params with a callback
     # can be overriding a method or adding a config
     def params
-      processed_params
+      path_gen.params
     end
 
     def processed_params

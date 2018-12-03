@@ -21,7 +21,7 @@ module Wrappi
       def http
         h = HTTP.timeout(client.timeout)
                 .headers(endpoint.headers)
-        h = h.follow() if endpoint.follow_redirects
+        h = h.follow() if endpoint.follow_redirects # TODO: add strict mode
         h = h.basic_auth(endpoint.basic_auth) if endpoint.basic_auth
         h
       end
