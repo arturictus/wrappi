@@ -1,31 +1,27 @@
 require 'logger'
 module Wrappi
   # This class is expected to handle all the configurations for your main module
-  class Client
+  class Client < Miller.base(
+    :ssl_context, :use_ssl_context, :logger,
+    :headers, :domain,
+    default_config: {
+      domain: -> { fail "[#{self.class}] Bad configuration: you must set the `domain` config" },
+      header: { 'Content-Type' => 'application/json', 'Accept' => 'application/json'},
+      logger: -> { Logger.new(STDOUT) },
+      use_ssl_context: false
+    }
+  )
     class TimeoutError < StandardError; end
     class JsonParseError < StandardError; end
     class NotAuthorizedAccessError < StandardError; end
-
-    include Fusu::Configurable
 
     # Not verify example
     # OpenSSL::SSL::SSLContext.new.tap do |ctx|
     #   ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
     # end
-    config_accessor :ssl_context
-    config_accessor(:use_ssl_context) { false }
-    config_accessor(:logger) { Logger.new(STDOUT) }
-    config_accessor(:headers) do
-      { 'Content-Type' => 'application/json',
-        'Accept' => 'application/json'}
-    end
 
     def self.setup
       yield(self)
-    end
-
-    def self.domain=(domain)
-      @domain = domain
     end
 
     def self.timeout=(opts)
@@ -36,11 +32,6 @@ module Wrappi
       return @timeout if defined?(@timeout)
       self.timeout = {}
       @timeout
-    end
-
-    def self.domain
-      fail "[#{self.class}] Bad configuration: you must set the `domain` config" unless @domain
-      @domain
     end
 
     def self.errors
@@ -55,13 +46,13 @@ module Wrappi
       Pathname.new(File.expand_path('../../', __FILE__))
     end
 
-    def self.params_with_defaults(params = {})
-      if self.use_ssl_context
-        fail "[#{self}] Bad configuration: You set `use_ssl_context` but did not provide `ssl_context`" unless self.ssl_context
-        params.reverse_merge(ssl_context: self.ssl_context)
-      else
-        params
-      end
-    end
+    # def self.params_with_defaults(params = {})
+    #   if self.use_ssl_context
+    #     fail "[#{self}] Bad configuration: You set `use_ssl_context` but did not provide `ssl_context`" unless self.ssl_context
+    #     params.reverse_merge(ssl_context: self.ssl_context)
+    #   else
+    #     params
+    #   end
+    # end
   end
 end

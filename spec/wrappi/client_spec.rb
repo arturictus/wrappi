@@ -2,16 +2,13 @@ require 'spec_helper'
 module Wrappi
   describe Client do
     class ServiceOne < Wrappi::Client
-      setup do |config|
-        config.domain = 'https://service-one.com'
-        config.timeout = { write: 10 }
-      end
+      domain 'https://service-one.com'
+      timeout = { write: 10 }
     end
     class ServiceTwo < Wrappi::Client
-      setup do |config|
-        config.domain = 'https://service-two.com'
-      end
+      domain 'https://service-two.com'
     end
+
     it do
       expect(ServiceOne.domain).to eq 'https://service-one.com'
       expect(ServiceTwo.domain).to eq 'https://service-two.com'

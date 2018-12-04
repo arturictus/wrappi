@@ -3,13 +3,9 @@ module Wrappi
   describe Endpoint do
     describe 'DSL' do
       let(:client) do
-        klass = Class.new(Client) do
-          setup do |c|
-            c.domain = 'http://domain.com'
-          end
+        Class.new(Client) do
+          domain 'http://domain.com'
         end
-        klass
-
       end
       it 'literal methods' do
         klass = Class.new(described_class) do
@@ -23,7 +19,7 @@ module Wrappi
 
       it 'blocks as configs' do
         klass = Class.new(described_class) do
-          client Dummy
+          client { Dummy.new }
           verb :post
           path do
             "/users/#{some_id}"
@@ -43,7 +39,7 @@ module Wrappi
       it 'default params' do
         def_params = { 'name' => 'foo' }
         klass = Class.new(described_class) do
-          client Github
+          client { Github.new }
           verb :get
           path "/users"
           default_params def_params
