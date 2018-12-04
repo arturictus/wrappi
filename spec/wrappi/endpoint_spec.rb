@@ -41,7 +41,7 @@ module Wrappi
 
       end
       it 'default params' do
-        def_params = { name: 'foo' }
+        def_params = { 'name' => 'foo' }
         klass = Class.new(described_class) do
           client Github
           verb :get
