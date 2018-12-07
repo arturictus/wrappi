@@ -55,13 +55,13 @@ module Wrappi
       Pathname.new(File.expand_path('../../', __FILE__))
     end
 
-    def self.params_with_defaults(params = {})
-      if self.use_ssl_context
-        fail "[#{self}] Bad configuration: You set `use_ssl_context` but did not provide `ssl_context`" unless self.ssl_context
-        params.reverse_merge(ssl_context: self.ssl_context)
-      else
-        params
-      end
-    end
+  #   def self.params_with_defaults(params = {})
+  #     if self.use_ssl_context
+  #       fail "[#{self}] Bad configuration: You set `use_ssl_context` but did not provide `ssl_context`" unless self.ssl_context
+  #       params.reverse_merge(ssl_context: self.ssl_context)
+  #     else
+  #       params
+  #     end
+  #   end
   end
 end
