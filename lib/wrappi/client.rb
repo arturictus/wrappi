@@ -3,12 +3,13 @@ module Wrappi
   # This class is expected to handle all the configurations for your main module
   class Client < Miller.base(
     :ssl_context, :use_ssl_context, :logger,
-    :headers, :domain,
+    :headers, :domain, :timeout,
     default_config: {
       domain: -> { fail "[#{self.class}] Bad configuration: you must set the `domain` config" },
       header: { 'Content-Type' => 'application/json', 'Accept' => 'application/json'},
       logger: -> { Logger.new(STDOUT) },
-      use_ssl_context: false
+      use_ssl_context: false,
+      timeout: { write: 3, connect: 3, read: 3 }
     }
   )
     class TimeoutError < StandardError; end
@@ -24,15 +25,15 @@ module Wrappi
       yield(self)
     end
 
-    def self.timeout=(opts)
-      @timeout = { write: 3, connect: 3, read: 3 }.merge(opts)
-    end
-
-    def self.timeout
-      return @timeout if defined?(@timeout)
-      self.timeout = {}
-      @timeout
-    end
+    # def self.timeout=(opts)
+    #   @timeout = { write: 3, connect: 3, read: 3 }.merge(opts)
+    # end
+    #
+    # def self.timeout
+    #   return @timeout if defined?(@timeout)
+    #   self.timeout = {}
+    #   @timeout
+    # end
 
     def self.errors
       [

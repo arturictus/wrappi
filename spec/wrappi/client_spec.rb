@@ -10,10 +10,12 @@ module Wrappi
     end
 
     it do
-      expect(ServiceOne.domain).to eq 'https://service-one.com'
-      expect(ServiceTwo.domain).to eq 'https://service-two.com'
-      expect(ServiceTwo.timeout[:write]).to eq 3
-      expect(ServiceOne.timeout[:write]).to eq 10
+      service_one = ServiceOne.new
+      service_two = ServiceTwo.new
+      expect(service_one.domain).to eq 'https://service-one.com'
+      expect(service_two.domain).to eq 'https://service-two.com'
+      expect(service_two.timeout[:write]).to eq 3
+      expect(service_one.timeout[:write]).to eq 10
     end
   end
 end
