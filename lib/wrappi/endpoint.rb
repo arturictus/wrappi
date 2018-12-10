@@ -6,13 +6,15 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
+    :body_type,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
       path: proc { raise 'path not defined' }, # TODO: add proper error
       default_params: {},
       headers: proc { client.headers },
-      follow_redirects: true
+      follow_redirects: true,
+      body_type: :json
     }
   )
     attr_reader :input_params, :options

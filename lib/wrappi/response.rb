@@ -3,6 +3,8 @@ module Wrappi
   # check documentation at:
   # https://github.com/httprb/http/wiki/Response-Handling
   class Response
+    class TimeoutError < StandardError; end
+    class NotAuthorizedAccessError < StandardError; end
     attr_reader :block
 
     def initialize(&block)
@@ -11,15 +13,16 @@ module Wrappi
 
     def request
       @request ||= block.call
+      # raise controlled errors
     end
     alias_method :call, :request
 
     def body
-      @body ||= JSON.parse(raw_body)
+      @body ||= request.parse
     end
 
     def success?
-      request.code < 300 && request.code >= 200
+      @success ||= request.code < 300 && request.code >= 200
     end
 
     def error?
