@@ -13,8 +13,8 @@ module Wrappi
       @strategy ||= case verb
                     when :get
                       Get.new(endpoint)
-                    when :post
-                      Post.new(endpoint)
+                    when :post, :delete, :put
+                      BodyType.new(endpoint)
                     else
                       raise 'Verb strategy not defined'
                     end
@@ -27,4 +27,4 @@ module Wrappi
 end
 require 'wrappi/request/template'
 require 'wrappi/request/get'
-require 'wrappi/request/post'
+require 'wrappi/request/body_type'

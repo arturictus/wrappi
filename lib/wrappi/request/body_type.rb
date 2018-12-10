@@ -1,8 +1,8 @@
 module Wrappi
   class Request
-    class Post < Template
+    class BodyType < Template
       def call
-        http.post(url, json: params)
+        http.send(verb, url, json: params)
       end
     end
   end

@@ -18,6 +18,10 @@ module Wrappi
         endpoint.url
       end
 
+      def verb
+        endpoint.verb
+      end
+
       def http
         h = HTTP.timeout(client.timeout)
                 .headers(endpoint.headers)
