@@ -17,8 +17,9 @@ module Wrappi
     config_accessor(:logger) { Logger.new(STDOUT) }
     config_accessor(:headers) do
       { 'Content-Type' => 'application/json',
-        'Accept' => 'application/json'}
+        'Accept' => 'application/json' }
     end
+    config_accessor(:params) { {} }
 
     def self.setup
       yield(self)

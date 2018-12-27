@@ -1,8 +1,5 @@
 require 'wrappi/response'
 module Wrappi
-  # TODO
-  # - basic auth
-  # - add headers
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
@@ -11,7 +8,7 @@ module Wrappi
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
       path: proc { raise 'path not defined' }, # TODO: add proper error
-      default_params: {},
+      default_params: proc { client.params },
       headers: proc { client.headers },
       follow_redirects: true,
       body_type: :json
@@ -32,7 +29,7 @@ module Wrappi
     end
 
     def url
-      URI.join(client.domain, path_gen.path)
+      URI.join("#{client.domain}/", path_gen.path)
     end
 
     # TODO find a way to be able to modify params with a callback
@@ -42,13 +39,13 @@ module Wrappi
     end
 
     def processed_params
-      default_params.merge(input_params)
+      client.params.merge(default_params.merge(input_params))
     end
 
     def response
       @response ||= Response.new do
                       Request.new(self).call
-                    end
+                    end.tap(&:request)
     end
     alias_method :call, :response
 

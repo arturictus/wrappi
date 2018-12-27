@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "sinatra"
   spec.add_dependency 'http', "~> 2.2"
-  spec.add_dependency 'fusu'
+  spec.add_dependency 'fusu', "~> 0.2.1"
   spec.add_dependency 'miller'
 end
