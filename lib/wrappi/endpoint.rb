@@ -8,7 +8,7 @@ module Wrappi
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
       path: proc { raise 'path not defined' }, # TODO: add proper error
-      default_params: proc { client.params },
+      default_params: {},
       headers: proc { client.headers },
       follow_redirects: true,
       body_type: :json
@@ -37,7 +37,7 @@ module Wrappi
     def before_request
       true
     end
-    
+
     # overridable
     def after_request(response)
       true

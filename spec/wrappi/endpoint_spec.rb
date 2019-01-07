@@ -38,12 +38,17 @@ module Wrappi
         expect(inst.verb).to eq :post
         expect(inst.path).to eq '/users/10'
         expect(inst.response).to be_a Wrappi::Response
-
       end
+
       it 'default params' do
+        client = Class.new(Wrappi::Client) do
+          setup do |config|
+            config.domain = 'https://api.github.com'
+          end
+        end
         def_params = { 'name' => 'foo' }
         klass = Class.new(described_class) do
-          client Github
+          client client
           verb :get
           path "/users"
           default_params def_params

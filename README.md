@@ -57,12 +57,12 @@ user.body
 ### Client
 
 Is the main configuration for your service.
-It should holds the common configuration for all the endpoints `Endpoints`.
 
-Configs:
+It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
+
+Required:
+
   - `domain`: Yep, you know.
-
-    example:
     ```ruby
     config.domain = 'https://api.github.com'
     ```
@@ -71,24 +71,18 @@ Optionals:
 
   - `params`: Set global params for all the `Endpoints`.
     This is a great place to put the `api_key`.
-
-    example:
     ```ruby
     config.params = { "api_key" => "asdfasdfoerkwlejrwer" }
     ```
     default: `{}`
 
   - `logger`: Set your logger.
-
-    example:
     ```ruby
     config.logger = Rails.logger
     ```
     default: `Logger.new(STDOUT)`
 
   - `headers`: Headers for all the endpoints. Format, Authentication.
-
-    example:
     ```ruby
     config.headers = {
       "Content-Type" => "application/json",
@@ -102,8 +96,6 @@ Optionals:
     ```
 
   - `ssl_context`: If you need to set an ssl_context.
-
-     example:
      ```ruby
      config.ssl_context = OpenSSL::SSL::SSLContext.new.tap do |ctx|
                             ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -117,16 +109,59 @@ Optionals:
 
 ### Endpoint
 
+Required:
+  - `client`: `Wrappi::Client` `class`
+  - `path`: The path.
+
+    TODO
+  - `verb`:
+    - `:get`
+    - `:post`
+    - `:delete`
+    - `:put`
+
+    default: `:get`
+
+Optional:
+
+  - `default_params`:
+
+    default: `{}`
+  - `headers`:
+
+    default: `proc { client.headers }`
+
+  - `basic_auth`:
+
+    default: `nil`
+  - `follow_redirects`:
+
+    default: `true`
+  - `body_type`:
+
+    default: `:json`
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Run test:
+```
+bin/dev_server
+```
+This will run a rails server. The test are running agains it.
+
+```
+bundle exec rspec
+```
+
+You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/wrappi. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/arturictus/wrappi. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License

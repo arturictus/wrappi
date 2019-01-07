@@ -3,8 +3,25 @@
 require "bundler/setup"
 require "wrappi"
 
-# require examples
-require './spec/support/github'
+# Github example:
+
+module Github
+  class Client < Wrappi::Client
+    setup do |config|
+      config.domain = 'https://api.github.com'
+      config.headers = {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/vnd.github.v3+json',
+      }
+    end
+  end
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+  end
+end
+
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
