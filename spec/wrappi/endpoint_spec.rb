@@ -53,7 +53,7 @@ module Wrappi
         expect(inst.verb).to eq :get
         expect(inst.path).to eq '/users'
         expect(inst.url.to_s).to eq 'https://api.github.com/users'
-        expect(inst.params).to eq def_params
+        expect(inst.consummated_params).to eq def_params
       end
     end
   end

@@ -30,7 +30,7 @@ module Wrappi
     end
 
     def self.timeout=(opts)
-      @timeout = { write: 3, connect: 3, read: 3 }.merge(opts)
+      @timeout = { write: 9, connect: 9, read: 9 }.merge(opts)
     end
 
     def self.timeout

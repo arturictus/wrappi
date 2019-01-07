@@ -11,7 +11,7 @@ module Wrappi
       end
 
       def params
-        endpoint.params
+        endpoint.consummated_params
       end
 
       def url

@@ -24,16 +24,41 @@ module Wrappi
       new(*args).call
     end
 
-    def path_gen
-      @path_gen ||= PathGen.new(path, processed_params)
-    end
-
     def url
       URI.join("#{client.domain}/", path_gen.path)
     end
 
-    # TODO find a way to be able to modify params with a callback
-    # can be overriding a method or adding a config
+    # overridable
+    def consummated_params
+      params
+    end
+
+    # overridable
+    def before_request
+      true
+    end
+    
+    # overridable
+    def after_request(response)
+      true
+    end
+
+    def response
+      return unless before_request
+      @response ||= Response.new do
+                      Request.new(self).call
+                    end.tap(&:request)
+      after_request(@response)
+      @response
+    end
+    alias_method :call, :response
+
+    def body; response.body end
+    def success?; response.success? end
+    def status; response.status end
+
+    private
+
     def params
       path_gen.params
     end
@@ -42,15 +67,10 @@ module Wrappi
       client.params.merge(default_params.merge(input_params))
     end
 
-    def response
-      @response ||= Response.new do
-                      Request.new(self).call
-                    end.tap(&:request)
+    def path_gen
+      @path_gen ||= PathGen.new(path, processed_params)
     end
-    alias_method :call, :response
 
-    def body; response.body end
-    def success?; response.success? end
-    def status; response.status end
+
   end
 end
