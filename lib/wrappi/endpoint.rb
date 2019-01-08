@@ -25,7 +25,17 @@ module Wrappi
     end
 
     def url
-      URI.join("#{client.domain}/", path_gen.path)
+      _url.to_s
+    end
+
+    def url_with_params
+      if verb == :get
+        _url.tap do |u|
+          u.query = URI.encode_www_form(consummated_params) if consummated_params.any?
+        end.to_s
+      else
+        url
+      end
     end
 
     # overridable
@@ -59,6 +69,10 @@ module Wrappi
 
     private
 
+    def _url
+      URI.join("#{client.domain}/", path_gen.path)
+    end
+
     def params
       path_gen.params
     end
@@ -70,7 +84,5 @@ module Wrappi
     def path_gen
       @path_gen ||= PathGen.new(path, processed_params)
     end
-
-
   end
 end
