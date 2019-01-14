@@ -53,13 +53,14 @@ module Wrappi
       true
     end
 
+    def arround_request
+      proc { |r, ins| r.call; r }
+    end
+
     def response
-      return unless before_request
-      @response ||= Response.new do
-                      Request.new(self).call
-                    end.tap(&:request)
-      after_request(@response)
-      @response
+      return @response if defined?(@response)
+      res = Response.new { Request.new(self).call }
+      @response = arround_request.call(res, self)
     end
     alias_method :call, :response
 
