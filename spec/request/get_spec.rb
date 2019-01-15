@@ -7,5 +7,6 @@ describe "dummy GET" do
       path "/dummy"
     end
   end
+  let(:verb) { :get }
   it_behaves_like 'request_examples'
 end

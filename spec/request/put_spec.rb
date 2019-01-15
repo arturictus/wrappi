@@ -7,5 +7,6 @@ describe "dummy PUT" do
       path "/dummy"
     end
   end
+  let(:verb) { :put }
   it_behaves_like 'request_examples'
 end
