@@ -72,7 +72,25 @@ shared_examples 'request_examples' do
       expect(inst.success?).to be false
       expect(var).to eq 2
       expect(inst.response).to be_a Wrappi::Executer::UncalledRequest
-      # expect(mock).to eq "STRING"
+    end
+  end
+
+  describe "retry" do
+    it 'retries until has been called 3 times' do
+      var = 0
+      klass = Class.new(endpoint) do
+        retry_if do |res|
+          res.error?
+        end
+        around_request do |res|
+          var += 1
+          res.call if var == 3
+        end
+      end
+      inst = klass.new(params)
+
+      expect(inst.success?).to eq true
+      expect(var).to eq 3
     end
   end
 end

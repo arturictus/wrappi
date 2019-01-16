@@ -34,6 +34,7 @@ module Wrappi
         100
       end
     end
+    class RetryError < StandardError; end
 
     def self.call(*args)
       new(*args).call
@@ -43,14 +44,37 @@ module Wrappi
       @endpoint = endpoint
     end
 
-    def cache
+    def call
+      if retry?
+        Retryable.retryable(retry_options) do
+          res = make_request
+          raise RetryError if retry_if.call(res, endpoint)
+          res
+        end
+      else
+        make_request
+      end
+    end
+
+    private
+
+    def retry_options
+      { tries: 3, on: RetryError }
     end
 
     def around_request
       endpoint.around_request || proc { |res, endpoint| res.call }
     end
 
-    def call
+    def retry?
+      !!endpoint.retry_if
+    end
+
+    def retry_if
+      endpoint.retry_if
+    end
+
+    def make_request
       res = Response.new { Request.new(endpoint).call }
       around_request.call(res, endpoint)
       res.called? ? res : UncalledRequest.new

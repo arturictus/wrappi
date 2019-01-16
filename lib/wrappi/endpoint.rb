@@ -24,14 +24,6 @@ module Wrappi
       new(*args).call
     end
 
-    def self.around_request(&block)
-      @around_request = block
-    end
-
-    def around_request
-      self.class.instance_variable_get(:@around_request)
-    end
-
     def url
       _url.to_s
     end
@@ -59,6 +51,22 @@ module Wrappi
     def body; response.body end
     def success?; response.success? end
     def status; response.status end
+
+    # AROUND REQUEST
+    def self.around_request(&block)
+      @around_request = block
+    end
+    def around_request
+      self.class.instance_variable_get(:@around_request)
+    end
+
+    # RETRY
+    def self.retry_if(&block)
+      @retry_if = block
+    end
+    def retry_if
+      self.class.instance_variable_get(:@retry_if)
+    end
 
     private
 
