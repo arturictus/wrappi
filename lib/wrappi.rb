@@ -8,6 +8,7 @@ module Wrappi
 end
 
 require 'wrappi/client'
+require 'wrappi/executer'
 require 'wrappi/endpoint'
 require 'wrappi/request'
 require 'wrappi/path_gen'

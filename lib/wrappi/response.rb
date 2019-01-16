@@ -17,6 +17,10 @@ module Wrappi
     end
     alias_method :call, :request
 
+    def called?
+      !!@request
+    end
+
     def body
       @body ||= request.parse
     end

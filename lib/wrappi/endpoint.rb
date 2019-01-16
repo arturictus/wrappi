@@ -3,7 +3,7 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type,
+    :body_type, :around_request,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
@@ -43,24 +43,8 @@ module Wrappi
       params
     end
 
-    # overridable
-    def before_request
-      true
-    end
-
-    # overridable
-    def after_request(response)
-      true
-    end
-
-    def arround_request
-      proc { |r, ins| r.call; r }
-    end
-
     def response
-      return @response if defined?(@response)
-      res = Response.new { Request.new(self).call }
-      @response = arround_request.call(res, self)
+      @response ||= Executer.call(self)
     end
     alias_method :call, :response
 
@@ -71,7 +55,7 @@ module Wrappi
     private
 
     def _url
-      URI.join("#{client.domain}/", path_gen.path)
+      URI.join("#{client.domain}/", path_gen.path) # TODO: remove heading "/" of path
     end
 
     def params
