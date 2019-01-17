@@ -59,14 +59,15 @@ module Wrappi
     private
 
     def retry_options
-      default = { tries: 3, on: [RetryError]}
-      if end_opts = endpoint.retry_options
+      default = { tries: 3, on: [RetryError] }
+      if endpoint.retry_options
+        end_opts = endpoint.retry_options.dup
         {}.tap do |h|
           h[:tries] = end_opts[:tries] || default[:tries]
-          if on = end_opts[:on]
+          if on = end_opts.delete(:on)
             h[:on] = default[:on] + Fusu::Array.wrap(on)
           end
-        end
+        end.merge(end_opts)
       else
         default
       end
