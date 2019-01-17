@@ -3,7 +3,7 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type,
+    :body_type, :retry_options,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error

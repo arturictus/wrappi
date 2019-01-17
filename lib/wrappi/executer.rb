@@ -59,7 +59,17 @@ module Wrappi
     private
 
     def retry_options
-      { tries: 3, on: RetryError }
+      default = { tries: 3, on: [RetryError]}
+      if end_opts = endpoint.retry_options
+        {}.tap do |h|
+          h[:tries] = end_opts[:tries] || default[:tries]
+          if on = end_opts[:on]
+            h[:on] = default[:on] + Fusu::Array.wrap(on)
+          end
+        end
+      else
+        default
+      end
     end
 
     def around_request

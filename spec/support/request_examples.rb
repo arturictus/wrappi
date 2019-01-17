@@ -46,51 +46,5 @@ shared_examples 'request_examples' do
     end
   end
 
-  describe "arround request" do
-    it 'When calling `call` block gets called' do
-      var = 1
-      klass = Class.new(endpoint) do
-        around_request do |res, endpoint|
-          var += 1
-          res.call
-        end
-      end
-      inst = klass.new(params)
-      expect(inst.success?).to be true
-      expect(var).to eq 2
-      expect(inst.response).to be_a Wrappi::Response
-      # expect(mock).to eq "STRING"
-    end
-    it 'When NOT calling `call` block does not get called' do
-      var = 1
-      klass = Class.new(endpoint) do
-        around_request do |res, endpoint|
-          var += 1
-        end
-      end
-      inst = klass.new(params)
-      expect(inst.success?).to be false
-      expect(var).to eq 2
-      expect(inst.response).to be_a Wrappi::Executer::UncalledRequest
-    end
-  end
 
-  describe "retry" do
-    it 'retries until has been called 3 times' do
-      var = 0
-      klass = Class.new(endpoint) do
-        retry_if do |res|
-          res.error?
-        end
-        around_request do |res|
-          var += 1
-          res.call if var == 3
-        end
-      end
-      inst = klass.new(params)
-
-      expect(inst.success?).to eq true
-      expect(var).to eq 3
-    end
-  end
 end
