@@ -45,6 +45,15 @@ module Wrappi
     end
 
     def call
+      request_with_retry
+    end
+
+    private
+
+    def cache?
+    end
+
+    def request_with_retry
       if retry?
         Retryable.retryable(retry_options) do
           res = make_request
@@ -55,8 +64,6 @@ module Wrappi
         make_request
       end
     end
-
-    private
 
     def retry_options
       default = { tries: 3, on: [RetryError] }
