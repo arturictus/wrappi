@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["arturictus@gmail.com"]
 
   spec.summary       = %q{Framework to create HTTP API clients}
-  spec.description   = %q{Framework to create HTTP API clients abstracting the best practices and improving readability to your code.}
+  spec.description   = %q{Framework to create HTTP API clients. The aim is to abstract the best practices using a declarative interface.}
   spec.homepage      = "https://github.com/arturictus/wrappi"
   spec.license       = "MIT"
 
