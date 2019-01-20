@@ -1,39 +1,6 @@
 module Wrappi
   class Executer
-    class UncalledRequest
-      def request
-        nil
-      end
-      alias_method :call, :request
 
-      def called?
-        true
-      end
-
-      def body
-        { "message" => "uncalled response" }
-      end
-
-      def success?
-        false
-      end
-
-      def error?
-        true
-      end
-
-      def raw_body
-        body.to_json
-      end
-
-      def uri
-        'uncalled_response'
-      end
-
-      def status
-        100
-      end
-    end
     class RetryError < StandardError; end
 
     def self.call(*args)
@@ -45,12 +12,47 @@ module Wrappi
     end
 
     def call
-      request_with_retry
+      if cache?
+        cache.get(cache_key)
+      else
+        request_with_retry
+      end
     end
 
     private
 
+    def get_cached
+      if cached = cache.get(cache_key)
+        # Build CachedResponse
+      else
+        response = request_with_retry
+        if r.success?
+          cache.set(cache_key, {
+            status: r.status
+            })
+        end
+        response
+      end
+    end
+
     def cache?
+      endpoint.client.cache && endpoint.cache && cache_allowed_verb?
+    end
+
+    def cache_allowed_verb?
+      if [:get, :post].include?(endpoint.verb)
+        true
+      else
+        puts "Cache is only available to no side effect requests: :get and :post" # TODO: make a warning
+        false
+      end
+    end
+
+    def cache
+      endpoint.client.cache
+    end
+
+    def cache_key
     end
 
     def request_with_retry

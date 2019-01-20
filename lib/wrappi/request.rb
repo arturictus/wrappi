@@ -23,6 +23,15 @@ module Wrappi
     def call
       @call ||= strategy.call
     end
+    alias_method :http, :call
+
+    def to_h
+      @to_h ||= {
+        raw_body: http.raw_body,
+        code: http.code,
+        uri: http.uri
+      }
+    end
   end
 end
 require 'wrappi/request/template'

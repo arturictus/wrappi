@@ -3,7 +3,7 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type, :retry_options,
+    :body_type, :retry_options, :cache,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
@@ -11,7 +11,8 @@ module Wrappi
       default_params: {},
       headers: proc { client.headers },
       follow_redirects: true,
-      body_type: :json
+      body_type: :json,
+      cache: false
     }
   )
     attr_reader :input_params, :options
@@ -68,7 +69,19 @@ module Wrappi
       self.class.instance_variable_get(:@retry_if)
     end
 
+    # Cache
+    def cache_key
+      # TODO: think headers have to be in the key as well
+      @cache_key ||= "[#{verb.to_s.upcase}]##{url}#{params_cache_key}"
+    end
+
     private
+
+    def params_cache_key
+      return if params.empty?
+      d = Digest::MD5.hexdigest params.to_json
+      "?#{d}"
+    end
 
     def _url
       URI.join("#{client.domain}/", path_gen.path) # TODO: remove heading "/" of path

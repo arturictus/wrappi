@@ -39,7 +39,7 @@ module Wrappi
         inst = klass.new(params)
         expect(inst.success?).to be false
         expect(var).to eq 2
-        expect(inst.response).to be_a Wrappi::Executer::UncalledRequest
+        expect(inst.response).to be_a Wrappi::UncalledRequest
       end
     end
 
