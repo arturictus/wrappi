@@ -13,7 +13,7 @@ module Wrappi
 
     def call
       if cache?
-        cache.get(cache_key)
+        get_cached
       else
         request_with_retry
       end
@@ -22,14 +22,12 @@ module Wrappi
     private
 
     def get_cached
-      if cached = cache.get(cache_key)
-        # Build CachedResponse
+      if cached = cache.read(cache_key)
+        CachedResponse.new(cached)
       else
         response = request_with_retry
         if r.success?
-          cache.set(cache_key, {
-            status: r.status
-            })
+          cache.write(cache_key, r.request.to_h)
         end
         response
       end
@@ -53,6 +51,7 @@ module Wrappi
     end
 
     def cache_key
+      endpoint.cache_key
     end
 
     def request_with_retry
