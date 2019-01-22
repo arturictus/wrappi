@@ -2,6 +2,11 @@ shared_examples 'request_examples' do
   let(:params) { {} }
   subject { endpoint.new(params) }
   let(:response) { subject.response }
+
+  it "VERB" do
+    expect(response.body.dig("request", "method")).to eq verb.to_s.upcase
+  end
+
   describe 'headers' do
     it 'sends then correctly'  do
       expect(response.body.dig("request", "content_type")).to eq 'application/json'
@@ -25,8 +30,13 @@ shared_examples 'request_examples' do
   end
 
   context 'redirects' do
+    subject do
+      klass = Class.new(endpoint) do
+        path '/dummy/redirect'
+      end
+      klass.new(params)
+    end
     it 'by default follows redirects' do
-      subject.path = '/dummy/redirect'
       expect(response.status).to eq 200
       expect(response.success?).to be true
       expect(response.body).to be_a Hash
@@ -36,8 +46,13 @@ shared_examples 'request_examples' do
 
   context 'with interpolated in url params' do
     let(:params) { { foo: :baz, id: 1 } }
+    subject do
+      klass = Class.new(endpoint) do
+        path '/dummy/:id'
+      end
+      klass.new(params)
+    end
     it 'sends expected url and params' do
-      subject.path = '/dummy/:id'
       expect(response.status).to eq 200
       expect(response.success?).to be true
       expect(response.body.dig("params", "foo")).to eq 'baz'
@@ -46,5 +61,28 @@ shared_examples 'request_examples' do
     end
   end
 
+  context 'basic_auth' do
+    subject do
+      klass = Class.new(endpoint) do
+        path '/dummy_basic_auth'
+      end
+      klass.new(params)
+    end
+    it "valid authentication" do
+      subject.basic_auth = { user: 'wrappi', pass: 'secret'}
+      expect(response.status).to eq 200
+      expect(response.success?).to be true
+      expect(response.body.dig('request', 'path')).to eq '/dummy_basic_auth'
+    end
+    it "invalid authentication" do
+      subject.basic_auth = { user: 'wrappi', pass: 'wrong'}
+      expect(response.status).to eq 401
+      expect(response.success?).to be false
+    end
+    it "no authentication" do
+      expect(response.status).to eq 401
+      expect(response.success?).to be false
+    end
+  end
 
 end

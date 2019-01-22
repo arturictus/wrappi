@@ -7,5 +7,6 @@ describe "dummy POST" do
       path "/dummy"
     end
   end
+  let(:verb) { :post }
   it_behaves_like 'request_examples'
 end

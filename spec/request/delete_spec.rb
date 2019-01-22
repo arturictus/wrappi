@@ -7,5 +7,6 @@ describe "dummy DELETE" do
       path "/dummy"
     end
   end
+  let(:verb) { :delete }
   it_behaves_like 'request_examples'
 end
