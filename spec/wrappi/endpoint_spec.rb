@@ -26,6 +26,7 @@ module Wrappi
         expect(inst.path).to eq '/users/:id'
         expect(inst.url.to_s).to match '/users/12'
         expect(inst.url_with_params.to_s).to eq 'http://domain.com/users/12'
+        expect(inst.cache_key).to eq "[GET]#http://domain.com/users/12"
       end
 
       it 'blocks as configs' do
@@ -69,6 +70,7 @@ module Wrappi
         expect(inst.consummated_params).to eq def_params
         expect(inst.url_with_params.to_s).to match "name=foo"
         expect(inst.url_with_params.to_s).to match 'https://api.github.com/users'
+        expect(inst.cache_key).to eq "[GET]#https://api.github.com/users?50b6137335559d7afac1144578f8e178"
       end
     end
   end

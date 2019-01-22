@@ -20,6 +20,7 @@ module Wrappi
         'Accept' => 'application/json' }
     end
     config_accessor(:params) { {} }
+    config_accessor(:cache)
 
     def self.setup
       yield(self)

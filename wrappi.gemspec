@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'http', "~> 2.2"
   spec.add_dependency 'fusu', "~> 0.2.1"
   spec.add_dependency 'miller', "~> 0.1.1"
+  spec.add_dependency 'retryable'
 end
