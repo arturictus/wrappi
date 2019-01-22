@@ -6,7 +6,7 @@ module Wrappi
         @endpoint = endpoint
       end
 
-      def get_cached
+      def call
         cached = cache.read(cache_key)
         return CachedResponse.new(cached) if cached
         response = yield
