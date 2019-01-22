@@ -11,11 +11,15 @@ module Wrappi
       end
 
       def params
-        endpoint.params
+        endpoint.consummated_params
       end
 
       def url
         endpoint.url
+      end
+
+      def verb
+        endpoint.verb
       end
 
       def http

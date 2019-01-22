@@ -1,12 +1,12 @@
 require 'spec_helper'
-describe "dummy POST" do
+describe "dummy PUT" do
   let(:endpoint) do
     klass = Class.new(Wrappi::Endpoint) do
-      client { Dummy.new }
-      verb :post
+      client Dummy
+      verb :put
       path "/dummy"
     end
   end
-  let(:verb) { :post }
+  let(:verb) { :put }
   it_behaves_like 'request_examples'
 end

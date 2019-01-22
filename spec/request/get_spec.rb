@@ -8,5 +8,6 @@ describe "dummy GET" do
     end
     klass
   end
+  let(:verb) { :get }
   it_behaves_like 'request_examples'
 end

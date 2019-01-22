@@ -4,7 +4,18 @@ Rails.application.routes.draw do
   # get '/dummy', to: "dummy#get_test"
   post '/dummy', to: "dummy#test_request"
   get '/dummy', to: "dummy#test_request"
+  put '/dummy', to: "dummy#test_request"
+  delete '/dummy', to: "dummy#test_request"
+
   post '/dummy/:id', to: "dummy#test_request"
   get '/dummy/:id', to: "dummy#test_request"
+  put '/dummy/:id', to: "dummy#test_request"
+  delete '/dummy/:id', to: "dummy#test_request"
+
+  post '/dummy_basic_auth', to: "basic_auth#test_request"
+  get '/dummy_basic_auth', to: "basic_auth#test_request"
+  put '/dummy_basic_auth', to: "basic_auth#test_request"
+  delete '/dummy_basic_auth', to: "basic_auth#test_request"
+
   get '/dummy/redirect', to: "dummy#test_redirect"
 end

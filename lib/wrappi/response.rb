@@ -3,23 +3,28 @@ module Wrappi
   # check documentation at:
   # https://github.com/httprb/http/wiki/Response-Handling
   class Response
-    attr_reader :block
 
+    attr_reader :block
     def initialize(&block)
       @block = block
     end
 
     def request
       @request ||= block.call
+      # raise controlled errors
     end
     alias_method :call, :request
 
+    def called?
+      !!@request
+    end
+
     def body
-      @body ||= JSON.parse(raw_body)
+      @body ||= request.parse
     end
 
     def success?
-      request.code < 300 && request.code >= 200
+      @success ||= request.code < 300 && request.code >= 200
     end
 
     def error?
@@ -36,6 +41,15 @@ module Wrappi
 
     def status
       request.code
+    end
+
+    def to_h
+      @to_h ||= {
+        raw_body: raw_body,
+        code: code,
+        uri: uri,
+        success: success?
+      }
     end
 
     def method_missing(method_name, *arguments, &block)
