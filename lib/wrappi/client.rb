@@ -3,7 +3,7 @@ module Wrappi
   # This class is expected to handle all the configurations for your main module
   class Client < Miller.base(
     :ssl_context, :use_ssl_context, :logger,
-    :headers, :domain, :timeout,
+    :headers, :domain, :timeout, :cache,
     default_config: {
       domain: -> { fail "[#{self.class}] Bad configuration: you must set the `domain` config" },
       header: { 'Content-Type' => 'application/json', 'Accept' => 'application/json'},

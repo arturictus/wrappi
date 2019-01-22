@@ -91,6 +91,11 @@ module Wrappi
       path_gen.params
     end
 
+    alias_method :old_client, :client
+    def client
+      old_client.new
+    end
+
     def processed_params
       client.params.merge(default_params.merge(input_params))
     end
