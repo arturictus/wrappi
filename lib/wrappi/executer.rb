@@ -22,12 +22,13 @@ module Wrappi
     private
 
     def get_cached
-      if cached = cache.read(cache_key)
+      cached = cache.read(cache_key)
+      if cached
         CachedResponse.new(cached)
       else
         response = request_with_retry
-        if r.success?
-          cache.write(cache_key, r.request.to_h)
+        if response.success?
+          cache.write(cache_key, response.to_h)
         end
         response
       end

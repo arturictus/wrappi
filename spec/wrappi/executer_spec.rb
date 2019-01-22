@@ -83,5 +83,29 @@ module Wrappi
         expect(var).to eq 3
       end
     end
+
+    describe 'cache' do
+      before { cache.clear }
+      let(:cache) do
+        endpoint.config.client.cache
+      end
+      let(:klass) do
+        Class.new(endpoint) do
+          verb :get
+          cache true
+        end
+      end
+
+      it "returns a cached response" do
+        klass.new(params)
+        inst = klass.new(params)
+        expect(inst.success?).to be true
+        expect(inst.response).to be_a Wrappi::Response
+        expect(cache.read(inst.cache_key)).not_to be nil
+        cached = klass.new(params)
+        expect(cached.response).to be_a Wrappi::CachedResponse
+        expect(cached.success?).to be true
+      end
+    end
   end
 end

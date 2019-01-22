@@ -5,5 +5,6 @@ class Dummy < Wrappi::Client
       'Content-Type' => 'application/json',
       'Accept' => 'application/json',
     }
+    config.cache = CacheMock.new
   end
 end

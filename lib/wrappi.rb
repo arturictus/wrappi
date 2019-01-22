@@ -5,7 +5,8 @@ require 'miller'
 require 'retryable'
 
 module Wrappi
-  # Your code goes here...
+  class TimeoutError < StandardError; end
+  class NotAuthorizedAccessError < StandardError; end
 end
 
 require 'wrappi/client'
