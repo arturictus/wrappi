@@ -162,7 +162,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
     ```
     Notice how interpolated params are removed from the query or the body
 
-  - `verb`:
+  - __verb:__
 
     default: `:get`
     - `:get`
