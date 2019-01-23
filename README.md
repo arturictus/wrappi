@@ -46,12 +46,10 @@ end
 
 ```ruby
 user = Github::User.new(username: 'arturictus')
-user.success?
-# => true
-user.code
-# => 200
-user.body
-# => {"login"=>"arturictus", "id"=>1930175, ...}
+user.success? # => true
+user.error? # => false
+user.status_code # => 200
+user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 ```
 
 ### Client
@@ -60,30 +58,30 @@ Is the main configuration for your service.
 
 It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
 
-Required:
+#### Required:
 
-  - `domain`: Yep, you know.
+  - __domain:__ Yep, you know.
     ```ruby
     config.domain = 'https://api.github.com'
     ```
 
-Optionals:
+#### Optionals:
 
-  - `params`: Set global params for all the `Endpoints`.
+  - __params:__ Set global params for all the `Endpoints`.
     This is a great place to put the `api_key`.
     ```ruby
     config.params = { "api_key" => "asdfasdfoerkwlejrwer" }
     ```
     default: `{}`
 
-  - `logger`: Set your logger.
+  - __logger:__ Set your logger.
 
     default: `Logger.new(STDOUT)`
     ```ruby
     config.logger = Rails.logger
     ```
 
-  - `headers`: Headers for all the endpoints. Format, Authentication.
+  - __headers:__ Headers for all the endpoints. Format, Authentication.
 
     default:
     ```ruby
@@ -97,7 +95,7 @@ Optionals:
     }
     ```
 
-  - `ssl_context`: If you need to set an ssl_context.
+  - __ssl_context:__ If you need to set an ssl_context.
 
      default: `nil`
      ```ruby
@@ -106,19 +104,19 @@ Optionals:
                           end
      ```
 
-  - `use_ssl_context`: It has to be set to `true` for using the `ssl_context`
+  - __use_ssl_context:__ It has to be set to `true` for using the `ssl_context`
 
      default: `false`
 
 ### Endpoint
 
-Required:
-  - `client`: `Wrappi::Client` `class`
+#### Required:
+  - __client:__ `Wrappi::Client` `class`
     ```ruby
       client MyClient
     ```
 
-  - `path`: The path to the resource.
+  - __path:__ The path to the resource.
     You can use doted notation and they will be [changed] with the params
 
     ```ruby
@@ -143,9 +141,9 @@ Required:
     - `:put`
 
 
-Optional:
+#### Optional:
 
-  - `default_params`: Default params for the request. This params will be added
+  - __default_params:__ Default params for the request. This params will be added
     to all the instances unless you override them.
 
     default: `{}`
@@ -163,7 +161,7 @@ Optional:
     endpoint.consummated_params #=> {"other"=>"foo","foo" => "foo" }
     ```
 
-  - `headers`: You can modify the client headers here. Notice that if you want
+  - __headers:__ You can modify the client headers here. Notice that if you want
     to use the client headers as well you will have to merge them.
 
     default: `proc { client.headers }`
@@ -181,7 +179,7 @@ Optional:
     endpoint.headers #=> { 'Agent' => 'wrappi', 'Content-Type' => 'application/json', 'Accept' => 'application/json'}
     ```
 
-  - `basic_auth`: If your endpoint requires basic_auth here is the place. keys
+  - __basic_auth:__ If your endpoint requires basic_auth here is the place. keys
     have to be: `user` and `pass`.
 
     default: `nil`
@@ -191,11 +189,11 @@ Optional:
       end
     ```
 
-  - `follow_redirects`: If first request responds a redirect it will follow them.
+  - __follow_redirects:__ If first request responds a redirect it will follow them.
 
     default: `true`
 
-  - `body_type`: Body type.
+  - __body_type:__ Body type.
 
     default: `:json`
 
@@ -203,7 +201,7 @@ Optional:
     - :form
     - :body (Binary data)
 
-Flow Control:
+#### Flow Control:
 
   This configs allows you fine tune your request adding middleware, retries and cache.
   The are executed in this nested stack:
@@ -212,12 +210,12 @@ Flow Control:
       |- retry
         |- around_request
   ```
-  Check (specs)[/blob/master/spec/wrappi/executer_spec.rb] for more examples.
+  Check [specs](/blob/master/spec/wrappi/executer_spec.rb) for more examples.
 
-  - `cache`: Cache the request if successful.
+  - __cache:__ Cache the request if successful.
 
     default: `false`
-  - `retry_if`: Block to evaluate if request has to be retried. In the block are
+  - __retry_if:__ Block to evaluate if request has to be retried. In the block are
     yielded `Response` and `Endpoint` instances. If the block returns `true` the request will be retried.
     ```ruby
       retry_if do |response, endpoint|
@@ -238,7 +236,7 @@ Flow Control:
     ```
     Notice that this block will never be executed if an error occur (like timeouts). For retrying on errors use the `retry_options`
 
-  - `retry_options`: We are using the great gem (retryable)[https://github.com/nfedyashev/retryable] to accomplish this behavior.
+  - __retry_options:__ We are using the great gem [retryable](https://github.com/nfedyashev/retryable) to accomplish this behavior.
   Check the documentation for fine tuning. I just paste some examples for convenience.
 
   ```ruby
@@ -247,7 +245,7 @@ Flow Control:
       { tries: :infinite, sleep: 0 }
     end
   ```
-  - `around_request`: This block is executed surrounding the request. The request
+  - __around_request:__ This block is executed surrounding the request. The request
   will only get executed if you call `request.call`.
   ```ruby
     around_request do |request, endpoint|
