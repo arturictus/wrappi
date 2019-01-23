@@ -106,6 +106,38 @@ module Wrappi
         expect(cached.response).to be_a Wrappi::CachedResponse
         expect(cached.success?).to be true
       end
+
+      describe 'cache works with retry and arround_request' do
+
+        it "returns a cached response" do
+          var = 0
+          klass = Class.new(endpoint) do
+            cache true
+            retry_options do
+              { tries: 4, on: RandomTestError }
+            end
+            retry_if do |res|
+              res.error?
+            end
+            around_request do |res|
+              var += 1
+              raise RandomTestError if var == 2
+              res.call if var == 4
+            end
+          end
+          inst = klass.new(params)
+          expect { inst.call }.not_to raise_error
+          expect(inst.success?).to eq true
+          expect(var).to eq 4
+          expect(inst.response).to be_a Wrappi::Response
+          expect(cache.read(inst.cache_key)).not_to be nil
+          cached = klass.new(params)
+          expect(cached.response).to be_a Wrappi::CachedResponse
+          expect(cached.success?).to be true
+          expect(var).to eq 4
+        end
+
+      end
     end
   end
 end

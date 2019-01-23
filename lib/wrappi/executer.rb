@@ -15,7 +15,7 @@ module Wrappi
     def call
       if cache?
         cacher.call do
-          make_request
+          request_with_retry
         end
       else
         request_with_retry
