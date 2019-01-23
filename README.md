@@ -52,6 +52,36 @@ user.status_code # => 200
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 ```
 
+### Configurations
+
+#### Client
+
+| Name            | Type                     | Default                                                                  | Required |
+|-----------------|--------------------------|--------------------------------------------------------------------------|----------|
+| domain          | String                   |                                                                          | *        |
+| params          | Hash                     |                                                                          |          |
+| logger          | Logger                   | Logger.new(STDOUT)                                                       |          |
+| headers         | Hash                     | { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } |          |
+| ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
+| use_ssl_context | Boolean                  | false                                                                    |          |
+
+#### Endpoint
+
+| Name             | Type                              | Default                 | Required |
+|------------------|-----------------------------------|-------------------------|----------|
+| client           | Wrappi::Client                    |                         | *        |
+| path             | String                            |                         | *        |
+| verb             | Symbol                            | :get                    | *        |
+| default_params   | Hash                              | {}                      |          |
+| headers          | block                             | proc { client.headers } |          |
+| basic_auth       | Hash, keys: user, pass            |                         |          |
+| follow_redirects | Boolean                           | true                    |          |
+| body_type        | Symbol, one of: :json,:form,:body | :json                   |          |
+| cache            | Boolean                           | false                   |          |
+| retry_if         | block                             |                         |          |
+| retry_options    | block                             |                         |          |
+| around_request   | block                             |                         |          |
+
 ### Client
 
 Is the main configuration for your service.
