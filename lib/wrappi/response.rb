@@ -42,6 +42,7 @@ module Wrappi
     def status
       request.code
     end
+    alias_method :status_code, :status
 
     def to_h
       @to_h ||= {

@@ -77,12 +77,18 @@ Optionals:
     default: `{}`
 
   - `logger`: Set your logger.
+
+    default: `Logger.new(STDOUT)`
     ```ruby
     config.logger = Rails.logger
     ```
-    default: `Logger.new(STDOUT)`
 
   - `headers`: Headers for all the endpoints. Format, Authentication.
+
+    default:
+    ```ruby
+    { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+    ```
     ```ruby
     config.headers = {
       "Content-Type" => "application/json",
@@ -90,18 +96,15 @@ Optionals:
       "Auth-Token" => "verysecret"
     }
     ```
-    default:
-    ```ruby
-    { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
-    ```
 
   - `ssl_context`: If you need to set an ssl_context.
+
+     default: `nil`
      ```ruby
      config.ssl_context = OpenSSL::SSL::SSLContext.new.tap do |ctx|
                             ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
                           end
      ```
-     default: `nil`
 
   - `use_ssl_context`: It has to be set to `true` for using the `ssl_context`
 
@@ -111,35 +114,148 @@ Optionals:
 
 Required:
   - `client`: `Wrappi::Client` `class`
-  - `path`: The path.
+    ```ruby
+      client MyClient
+    ```
 
-    TODO
+  - `path`: The path to the resource.
+    You can use doted notation and they will be [changed] with the params
+
+    ```ruby
+      class MyEndpoint < Wrappi::Endpoint
+        client MyClient
+        verb :get
+        path "/users/:id"
+      end
+      endpoint = MyEndpoint.new(id: "the_id", other: "foo")
+      endpoint.url_with_params #=> "http://domain.com/users/the_id?other=foo"
+      endpoint.url #=> "http://domain.com/users/the_id"
+      endpoint.consummated_params #=> {"other"=>"foo"}
+    ```
+    Notice how [changed] params are removed from the query or the body
+
   - `verb`:
+
+    default: `:get`
     - `:get`
     - `:post`
     - `:delete`
     - `:put`
 
-    default: `:get`
 
 Optional:
 
-  - `default_params`:
+  - `default_params`: Default params for the request. This params will be added
+    to all the instances unless you override them.
 
     default: `{}`
-  - `headers`:
+
+    ```ruby
+    class MyEndpoint < Wrappi::Endpoint
+      client MyClient
+      verb :get
+      path "/users/:id"
+      default_params do
+        { other: "bar", foo: "foo" }
+      end
+    end
+    endpoint = MyEndpoint.new(id: "the_id", other: "foo")
+    endpoint.consummated_params #=> {"other"=>"foo","foo" => "foo" }
+    ```
+
+  - `headers`: You can modify the client headers here. Notice that if you want
+    to use the client headers as well you will have to merge them.
 
     default: `proc { client.headers }`
+    ```ruby
+    class MyEndpoint < Wrappi::Endpoint
+      client MyClient
+      verb :get
+      path "/users"
+      headers do
+        client.headers #=> { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+        client.headers.merge('Agent' => 'wrappi')
+      end
+    end
+    endpoint = MyEndpoint.new()
+    endpoint.headers #=> { 'Agent' => 'wrappi', 'Content-Type' => 'application/json', 'Accept' => 'application/json'}
+    ```
 
-  - `basic_auth`:
+  - `basic_auth`: If your endpoint requires basic_auth here is the place. keys
+    have to be: `user` and `pass`.
 
     default: `nil`
-  - `follow_redirects`:
+    ```ruby
+      basic_auth do
+        { user: 'wrappi', pass: 'secret'}
+      end
+    ```
+
+  - `follow_redirects`: If first request responds a redirect it will follow them.
 
     default: `true`
-  - `body_type`:
+
+  - `body_type`: Body type.
 
     default: `:json`
+
+    - :json
+    - :form
+    - :body (Binary data)
+
+Flow Control:
+
+  This configs allows you fine tune your request adding middleware, retries and cache.
+  The are executed in this nested stack:
+  ```
+    cache
+      |- retry
+        |- around_request
+  ```
+  Check (specs)[/blob/master/spec/wrappi/executer_spec.rb] for more examples.
+
+  - `cache`: Cache the request if successful.
+
+    default: `false`
+  - `retry_if`: Block to evaluate if request has to be retried. In the block are
+    yielded `Response` and `Endpoint` instances. If the block returns `true` the request will be retried.
+    ```ruby
+      retry_if do |response, endpoint|
+        endpoint.class #=> MyEndpoint
+        response.error? # => true or false
+      end
+    ```
+
+    Use case:
+
+    We have a service that returns an aggregation of hotels available to book for a city. The service will start the aggregation in the background and will return `200` if the aggregation is completed if the aggregation is not completed will return `201` making us know that we should call again to retrieve all the data. This behavior only occurs if we pass the param: `onlyIfComplete`.
+
+    ```ruby
+      retry_if do |response, endpoint|
+        endpoint.consummated_params["onlyIfComplete"] &&
+          response.status_code == 201
+      end
+    ```
+    Notice that this block will never be executed if an error occur (like timeouts). For retrying on errors use the `retry_options`
+
+  - `retry_options`: We are using the great gem (retryable)[https://github.com/nfedyashev/retryable] to accomplish this behavior.
+  Check the documentation for fine tuning. I just paste some examples for convenience.
+
+  ```ruby
+    retry_options do
+      { tries: 5, on: [ArgumentError, Wrappi::TimeoutError] } # or
+      { tries: :infinite, sleep: 0 }
+    end
+  ```
+  - `around_request`: This block is executed surrounding the request. The request
+  will only get executed if you call `request.call`.
+  ```ruby
+    around_request do |request, endpoint|
+      endpoint.logger.info("making a request to #{endpoint.url} with params: #{endpoint.consummated_params}")
+      request.call # IMPORTANT
+      endpoint.logger.info("response status is: #{request.status_code}")
+    end
+  ```
 
 ## Development
 

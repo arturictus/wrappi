@@ -75,6 +75,10 @@ module Wrappi
       @cache_key ||= "[#{verb.to_s.upcase}]##{url}#{params_cache_key}"
     end
 
+    def logger
+      client.logger
+    end
+
     private
 
     def params_cache_key
