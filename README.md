@@ -117,7 +117,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
     ```
 
   - __path:__ The path to the resource.
-    You can use doted notation and they will be [changed] with the params
+    You can use doted notation and they will be interpolated with the params
 
     ```ruby
       class MyEndpoint < Wrappi::Endpoint
@@ -130,7 +130,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       endpoint.url #=> "http://domain.com/users/the_id"
       endpoint.consummated_params #=> {"other"=>"foo"}
     ```
-    Notice how [changed] params are removed from the query or the body
+    Notice how interpolated params are removed from the query or the body
 
   - `verb`:
 
