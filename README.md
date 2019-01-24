@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/arturictus/wrappi.svg?branch=master)](https://travis-ci.org/arturictus/wrappi)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/maintainability)](https://codeclimate.com/github/arturictus/wrappi/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/test_coverage)](https://codeclimate.com/github/arturictus/wrappi/test_coverage)
+
 # Wrappi
 
 Framework to create API clients.
