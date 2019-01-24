@@ -11,8 +11,8 @@ RUN apk add --no-cache --update build-base \
 ENV APP_PATH /app
 
 # Different layer for gems installation
+COPY ./spec/dummy $APP_PATH
 WORKDIR $APP_PATH
-COPY spec/dummy APP_PATH
-RUN bundle install --jobs 3 --retry 3
+RUN bundle install
 
 EXPOSE 9873
