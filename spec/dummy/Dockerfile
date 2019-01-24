@@ -13,6 +13,6 @@ ENV APP_PATH /app
 # Different layer for gems installation
 WORKDIR $APP_PATH
 COPY spec/dummy APP_PATH
-RUN bundle install --jobs `expr $(cat /proc/cpuinfo | grep -c "cpu cores") - 1` --retry 3
+RUN bundle install --jobs 3 --retry 3
 
 EXPOSE 9873
