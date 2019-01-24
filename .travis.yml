@@ -6,7 +6,7 @@ rvm:
   - 2.4.4
   - 2.5.1
   - ruby-head
-before_install: gem install bundler
+before_install: gem install bundler -v 1.17.3
 script:
   - bin/ci_dev_server
   - bundle exec rspec
