@@ -1,3 +1,0 @@
-#!/bin/bash
-
-cd ./spec/dummy && bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} && rails server -b 0.0.0.0 -p 9873 -d

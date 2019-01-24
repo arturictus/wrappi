@@ -1,11 +1,16 @@
 language: ruby
 cache: bundler
+services:
+  - docker
 rvm:
   - 2.3.7
   - 2.4.4
   - 2.5.1
   - ruby-head
-before_install: gem install bundler -v 1.17.3
+before_install:
+  - docker build -t dummy -f spec/dummy/Dockerfile .
+  - docker run -d -p 127.0.0.1:9873:9873 dummy
+  - gem install bundler -v 1.17.3
 script:
   - bundle exec rspec
 # Code climate test reporter
@@ -16,10 +21,5 @@ before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-  - echo $PATH
-  - which rails
-  - type rails
-  - whereis rails
-  - ruby -S rails server -b 0.0.0.0 -p 9873 -d
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
