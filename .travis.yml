@@ -16,6 +16,10 @@ before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-  - bin/ci_dev_server &
+  - echo $PATH
+  - which rails
+  - type rails
+  - whereis rails
+  - ruby -S rails server -b 0.0.0.0 -p 9873 -d
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
