@@ -305,7 +305,17 @@ bundle exec rspec
 
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
+#### Docker
 
+Run dummy server with docker:
+```
+docker build -t wrappi/dummy -f spec/dummy/Dockerfile .
+docker run -d -p 127.0.0.1:9873:9873 wrappy/dummy /bin/sh -c "bin/rails server -b 0.0.0.0 -p 9873"
+```
+Try:
+```
+curl 127.0.0.1:9873 #=> {"controller":"pages","action":"show_body"}
+```
 
 ## Contributing
 
