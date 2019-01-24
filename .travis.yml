@@ -10,6 +10,7 @@ rvm:
 before_install:
   - docker build -t dummy -f spec/dummy/Dockerfile .
   - docker run -d -p 127.0.0.1:9873:9873 dummy
+  - docker ps -a
   - gem install bundler -v 1.17.3
 script:
   - bundle exec rspec
