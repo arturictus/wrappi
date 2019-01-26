@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/arturictus/wrappi.svg?branch=master)](https://travis-ci.org/arturictus/wrappi)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/maintainability)](https://codeclimate.com/github/arturictus/wrappi/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/test_coverage)](https://codeclimate.com/github/arturictus/wrappi/test_coverage)
+
 # Wrappi
 
 Framework to create API clients.
@@ -51,6 +55,36 @@ user.error? # => false
 user.status_code # => 200
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 ```
+
+### Configurations
+
+#### Client
+
+| Name            | Type                     | Default                                                                  | Required |
+|-----------------|--------------------------|--------------------------------------------------------------------------|----------|
+| domain          | String                   |                                                                          | *        |
+| params          | Hash                     |                                                                          |          |
+| logger          | Logger                   | Logger.new(STDOUT)                                                       |          |
+| headers         | Hash                     | { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } |          |
+| ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
+| use_ssl_context | Boolean                  | false                                                                    |          |
+
+#### Endpoint
+
+| Name             | Type                              | Default                 | Required |
+|------------------|-----------------------------------|-------------------------|----------|
+| client           | Wrappi::Client                    |                         | *        |
+| path             | String                            |                         | *        |
+| verb             | Symbol                            | :get                    | *        |
+| default_params   | Hash                              | {}                      |          |
+| headers          | block                             | proc { client.headers } |          |
+| basic_auth       | Hash, keys: user, pass            |                         |          |
+| follow_redirects | Boolean                           | true                    |          |
+| body_type        | Symbol, one of: :json,:form,:body | :json                   |          |
+| cache            | Boolean                           | false                   |          |
+| retry_if         | block                             |                         |          |
+| retry_options    | block                             |                         |          |
+| around_request   | block                             |                         |          |
 
 ### Client
 
@@ -117,7 +151,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
     ```
 
   - __path:__ The path to the resource.
-    You can use doted notation and they will be [changed] with the params
+    You can use doted notation and they will be interpolated with the params
 
     ```ruby
       class MyEndpoint < Wrappi::Endpoint
@@ -130,9 +164,9 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       endpoint.url #=> "http://domain.com/users/the_id"
       endpoint.consummated_params #=> {"other"=>"foo"}
     ```
-    Notice how [changed] params are removed from the query or the body
+    Notice how interpolated params are removed from the query or the body
 
-  - `verb`:
+  - __verb:__
 
     default: `:get`
     - `:get`
@@ -271,7 +305,17 @@ bundle exec rspec
 
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
+#### Docker
 
+Run dummy server with docker:
+```
+docker build -t wrappi/dummy -f spec/dummy/Dockerfile .
+docker run -d -p 127.0.0.1:9873:9873 wrappy/dummy /bin/sh -c "bin/rails server -b 0.0.0.0 -p 9873"
+```
+Try:
+```
+curl 127.0.0.1:9873 #=> {"controller":"pages","action":"show_body"}
+```
 
 ## Contributing
 

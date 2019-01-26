@@ -1,5 +1,26 @@
-sudo: false
 language: ruby
+cache: bundler
+services:
+  - docker
 rvm:
-  - 2.1.6
-before_install: gem install bundler -v 1.12.4
+  - 2.3.7
+  - 2.4.4
+  - 2.5.1
+  - ruby-head
+before_install:
+  - docker build -t dummy -f spec/dummy/Dockerfile .
+  - docker run -d -p 127.0.0.1:9873:9873 dummy
+  - docker ps -a
+  - gem install bundler -v 1.17.3
+script:
+  - bundle exec rspec
+# Code climate test reporter
+env:
+  global:
+    - CC_TEST_REPORTER_ID=6cebf6c67b6e2d8a53a608ea98ebd897f4cba357bf1e3431bfdb77ff4207399e
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
