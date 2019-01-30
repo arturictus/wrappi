@@ -1,7 +1,6 @@
 module Wrappi
-if defined?(ActiveJob)
-  class Async < ActiveJob::Base
-    def perform(endpoint_class, params, options)
+  module AsyncConcern
+    def wrappi_perform(endpoint_class, params, options)
       @endpoint_class = endpoint_class
       @params = parse(params)
       @options = parse(options)
@@ -25,6 +24,21 @@ if defined?(ActiveJob)
     rescue
       Rails.logger.warn("[Wrappi] Unable to find const #{@endpoint_class} for async")
       false
+    end
+  end
+if defined?(ActiveJob)
+  class Async < ActiveJob::Base
+    include AsyncConcern
+    def perform(*args)
+      wrappi_perform(*args)
+    end
+  end
+else
+  class Async
+    include AsyncConcern
+    def self.perform_later(*args)
+      puts "Unable to perform async ActiveJob is not installed"
+      new().wrappi_perform(*args)
     end
   end
 end
