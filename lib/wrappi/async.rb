@@ -6,10 +6,7 @@ module Wrappi
       @options = parse(options)
       return unless endpoint_const
       inst = endpoint_const.new(@params)
-
-      if inst.success?
-        inst.perform_async_callback(@options)
-      end
+      inst.perform_async_callback(@options)
     end
 
     def parse(data)
@@ -22,7 +19,7 @@ module Wrappi
     def endpoint_const
       Class.const_get(@endpoint_class)
     rescue
-      Rails.logger.warn("[Wrappi] Unable to find const #{@endpoint_class} for async")
+      puts "[Wrappi] Unable to find const #{@endpoint_class} for async"
       false
     end
   end
