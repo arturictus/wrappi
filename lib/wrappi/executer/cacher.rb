@@ -10,7 +10,7 @@ module Wrappi
         cached = cache.read(cache_key)
         return CachedResponse.new(cached) if cached
         response = yield
-        cache.write(cache_key, response.to_h) if response.success?
+        cache.write(cache_key, response.to_h, cache_options) if response.success?
         response
       end
 
@@ -25,6 +25,10 @@ module Wrappi
           puts "Cache is only available to no side effect requests: :get and :post" # TODO: make a warning
           false
         end
+      end
+
+      def cache_options
+        endpoint.cache_options
       end
 
       def cache

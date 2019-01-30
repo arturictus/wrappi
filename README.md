@@ -71,20 +71,21 @@ user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 
 #### Endpoint
 
-| Name             | Type                              | Default                 | Required |
-|------------------|-----------------------------------|-------------------------|----------|
-| client           | Wrappi::Client                    |                         | *        |
-| path             | String                            |                         | *        |
-| verb             | Symbol                            | :get                    | *        |
-| default_params   | Hash                              | {}                      |          |
-| headers          | block                             | proc { client.headers } |          |
-| basic_auth       | Hash, keys: user, pass            |                         |          |
-| follow_redirects | Boolean                           | true                    |          |
-| body_type        | Symbol, one of: :json,:form,:body | :json                   |          |
-| cache            | Boolean                           | false                   |          |
-| retry_if         | block                             |                         |          |
-| retry_options    | block                             |                         |          |
-| around_request   | block                             |                         |          |
+| Name             | Type                                     | Default                 | Required |
+|------------------|------------------------------------------|-------------------------|----------|
+| client           | Wrappi::Client                           |                         | *        |
+| path             | String                                   |                         | *        |
+| verb             | Symbol                                   | :get                    | *        |
+| default_params   | Hash || block -> Hash                    | {}                      |          |
+| headers          | Hash || block -> Hash                    | proc { client.headers } |          |
+| basic_auth       | Hash (keys: user, pass) || block -> Hash |                         |          |
+| follow_redirects | Boolean || block -> Boolean              | true                    |          |
+| body_type        | Symbol, one of: :json,:form,:body        | :json                   |          |
+| cache            | Boolean || block -> Boolean              | false                   |          |
+| cache_options    | Hash || block -> Hash                    | {}                      |          |
+| retry_if         | block                                    |                         |          |
+| retry_options    | Hash || block -> Hash                    | {}                      |          |
+| around_request   | block                                    |                         |          |
 
 ### Client
 
@@ -249,6 +250,12 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
   - __cache:__ Cache the request if successful.
 
     default: `false`
+  - __cache_options:__ Options for the `cache` to receive on `write`
+   ```ruby
+     cache_options expires_in: 12, another_opt: true
+   ```
+
+   default: `{}`
   - __retry_if:__ Block to evaluate if request has to be retried. In the block are
     yielded `Response` and `Endpoint` instances. If the block returns `true` the request will be retried.
     ```ruby
