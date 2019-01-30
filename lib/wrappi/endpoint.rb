@@ -3,7 +3,7 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type, :retry_options, :cache,
+    :body_type, :retry_options, :cache, :async_callback,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
@@ -12,7 +12,8 @@ module Wrappi
       headers: proc { client.headers },
       follow_redirects: true,
       body_type: :json,
-      cache: false
+      cache: false,
+      async_callback: proc {}
     }
   )
     attr_reader :input_params, :options
@@ -23,6 +24,20 @@ module Wrappi
 
     def self.call(*args)
       new(*args).call
+    end
+
+    def response
+      @response ||= Executer.call(self)
+    end
+    alias_method :call, :response
+
+    def body; response.body end
+    def success?; response.success? end
+    def status; response.status end
+
+    # overridable
+    def consummated_params
+      params
     end
 
     def url
@@ -39,19 +54,17 @@ module Wrappi
       end
     end
 
-    # overridable
-    def consummated_params
-      params
+    def perform_async_callback(async_options = {})
+      instance_exec(async_options, &async_callback)
     end
 
-    def response
-      @response ||= Executer.call(self)
+    def self.async_callback(&block)
+      @async_callback = block
     end
-    alias_method :call, :response
 
-    def body; response.body end
-    def success?; response.success? end
-    def status; response.status end
+    def async_callback
+      self.class.instance_variable_get(:@async_callback) || proc {}
+    end
 
     # AROUND REQUEST
     def self.around_request(&block)

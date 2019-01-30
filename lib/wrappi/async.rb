@@ -1,20 +1,31 @@
 module Wrappi
   module AsyncConcern
-    def wrappi_perform(endpoint_class, params, options)
+    def wrappi_perform(endpoint_class, args, options)
       @endpoint_class = endpoint_class
-      @params = parse(params)
+      @args = parse(args)
       @options = parse(options)
       return unless endpoint_const
-      inst = endpoint_const.new(@params)
+      inst = endpoint_const.new(@args[:params], @args[:options])
       inst.perform_async_callback(@options)
     end
 
     def parse(data)
       return data if data.is_a?(Hash)
-      JSON.parse(data)
+      JSON.parse(data) rescue {}
     rescue
       data
     end
+
+    # def parse(data)
+    #   return ia(data) if data.is_a?(Hash)
+    #   ia(JSON.parse(data)) rescue {}
+    # rescue
+    #   data
+    # end
+
+    # def ia(data)
+    #   Fusu::HashWithIndifferentAccess.new(data)
+    # end
 
     def endpoint_const
       Class.const_get(@endpoint_class)
@@ -26,6 +37,16 @@ module Wrappi
 if defined?(ActiveJob)
   class Async < ActiveJob::Base
     include AsyncConcern
+    def perform(*args)
+      wrappi_perform(*args)
+    end
+  end
+elsif defined?(Sidekiq)
+  class Async
+    include Sidekiq::Worker
+    def self.perform_later(*args)
+      perform_async(*args)
+    end
     def perform(*args)
       wrappi_perform(*args)
     end
