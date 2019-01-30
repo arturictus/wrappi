@@ -76,15 +76,15 @@ user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 | client           | Wrappi::Client                           |                         | *        |
 | path             | String                                   |                         | *        |
 | verb             | Symbol                                   | :get                    | *        |
-| default_params   | Hash || block -> Hash                    | {}                      |          |
-| headers          | Hash || block -> Hash                    | proc { client.headers } |          |
-| basic_auth       | Hash (keys: user, pass) || block -> Hash |                         |          |
-| follow_redirects | Boolean || block -> Boolean              | true                    |          |
+| default_params   | Hash `or` block -> Hash                    | {}                      |          |
+| headers          | Hash `or` block -> Hash                    | proc { client.headers } |          |
+| basic_auth       | Hash (keys: user, pass) `or` block -> Hash |                         |          |
+| follow_redirects | Boolean `or` block -> Boolean              | true                    |          |
 | body_type        | Symbol, one of: :json,:form,:body        | :json                   |          |
-| cache            | Boolean || block -> Boolean              | false                   |          |
-| cache_options    | Hash || block -> Hash                    | {}                      |          |
+| cache            | Boolean `or` block -> Boolean              | false                   |          |
+| cache_options    | Hash `or` block -> Hash                    | {}                      |          |
 | retry_if         | block                                    |                         |          |
-| retry_options    | Hash || block -> Hash                    | {}                      |          |
+| retry_options    | Hash `or` block -> Hash                    | {}                      |          |
 | around_request   | block                                    |                         |          |
 
 ### Client
