@@ -35,6 +35,10 @@ module Wrappi
     def success?; response.success? end
     def status; response.status end
 
+    def async(async_options = {})
+      Async.perform_later(self.class.to_s, { params: input_params, options: options }, async_options)
+    end
+
     # overridable
     def consummated_params
       params
@@ -45,13 +49,10 @@ module Wrappi
     end
 
     def url_with_params
-      if verb == :get
-        _url.tap do |u|
-          u.query = URI.encode_www_form(consummated_params) if consummated_params.any?
-        end.to_s
-      else
-        url
-      end
+      return url unless verb == :get
+      _url.tap do |u|
+        u.query = URI.encode_www_form(consummated_params) if consummated_params.any?
+      end.to_s
     end
 
     def perform_async_callback(async_options = {})
