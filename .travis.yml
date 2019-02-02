@@ -7,11 +7,16 @@ rvm:
   - 2.4.4
   - 2.5.1
   - ruby-head
+matrix:
+  allow_failures:
+    - rvm: 2.3.7
+    - rvm: ruby-head
+  fast_finish: true
 before_install:
   - docker build -t dummy -f spec/dummy/Dockerfile .
   - docker run -d -p 127.0.0.1:9873:9873 dummy /bin/sh -c "bin/rails server -b 0.0.0.0 -p 9873"
   - docker ps -a
-  - gem install bundler -v 1.17.3
+  - gem install bundler
 script:
   - bundle exec rspec
 # Code climate test reporter
