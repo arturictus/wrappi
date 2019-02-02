@@ -13,7 +13,7 @@ module Wrappi
       end
     end
   end
-  describe Async do
+  describe AsyncJob do
     let(:options) { {} }
     let(:async_options) { { set: { wait: 12 }, foo: :bar} }
     let(:params) { {user_id: 1} }

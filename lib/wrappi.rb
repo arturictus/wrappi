@@ -9,7 +9,8 @@ module Wrappi
   class NotAuthorizedAccessError < StandardError; end
 end
 
-require 'wrappi/async'
+require 'wrappi/async_job'
+require 'wrappi/async_handler'
 require 'wrappi/client'
 require 'wrappi/executer'
 require 'wrappi/endpoint'

@@ -42,7 +42,7 @@ if defined?(ActiveJob)
     end
   end
 else
-  class Async
+  class AsyncJob
     include AsyncConcern
     def self.set(options = {})
       self
