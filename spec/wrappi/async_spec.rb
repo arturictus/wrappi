@@ -15,7 +15,7 @@ module Wrappi
   end
   describe Async do
     let(:options) { {} }
-    let(:async_options) { {foo: :bar} }
+    let(:async_options) { { set: { wait: 12 }, foo: :bar} }
     let(:params) { {user_id: 1} }
     let(:endpoint_args) { {params: params, options: options} }
 
@@ -34,11 +34,12 @@ module Wrappi
     context "When endpoint const does not exists" do
       subject { described_class.perform_later("UnknowEndpoint", endpoint_args, async_options) }
       it do
-        expect{ subject }.not_to raise_error 
+        expect{ subject }.not_to raise_error
       end
     end
     describe "endpoint #async(opts = {})" do
       before do
+        expect(described_class).to receive(:set).with(async_options[:set]).and_call_original
         expect(described_class).to receive(:perform_later).with(AsyncEndpoint.to_s, endpoint_args, async_options).and_call_original
       end
       subject do

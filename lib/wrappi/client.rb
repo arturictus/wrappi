@@ -21,6 +21,7 @@ module Wrappi
     end
     config_accessor(:params) { {} }
     config_accessor(:cache)
+    config_accessor(:async_handler) { Async }
 
     def self.setup
       yield(self)

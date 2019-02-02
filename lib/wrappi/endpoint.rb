@@ -3,7 +3,7 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type, :retry_options, :cache, :async_callback,
+    :body_type, :retry_options, :cache, :async_callback, :async_handler,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
@@ -36,7 +36,8 @@ module Wrappi
     def status; response.status end
 
     def async(async_options = {})
-      Async.perform_later(self.class.to_s, { params: input_params, options: options }, async_options)
+      preferrend_async_handler.set((async_options[:set] || {}))
+           .perform_later(self.class.to_s, { params: input_params, options: options }, async_options)
     end
 
     # overridable
@@ -94,6 +95,10 @@ module Wrappi
     end
 
     private
+
+    def preferrend_async_handler
+      async_handler || client.async_handler || Async
+    end
 
     def params_cache_key
       return if params.empty?

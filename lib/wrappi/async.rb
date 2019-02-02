@@ -41,19 +41,12 @@ if defined?(ActiveJob)
       wrappi_perform(*args)
     end
   end
-elsif defined?(Sidekiq)
-  class Async
-    include Sidekiq::Worker
-    def self.perform_later(*args)
-      perform_async(*args)
-    end
-    def perform(*args)
-      wrappi_perform(*args)
-    end
-  end
 else
   class Async
     include AsyncConcern
+    def self.set(options = {})
+      self
+    end
     def self.perform_later(*args)
       puts "Unable to perform async ActiveJob is not installed"
       new().wrappi_perform(*args)
