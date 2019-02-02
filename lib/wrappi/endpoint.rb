@@ -3,7 +3,8 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type, :retry_options, :cache, :async_callback, :async_handler,
+    :body_type, :retry_options, :cache, :cache_options, 
+    :async_callback, :async_handler,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
@@ -13,7 +14,8 @@ module Wrappi
       follow_redirects: true,
       body_type: :json,
       cache: false,
-      async_callback: proc {}
+      async_callback: proc {},
+      cache_options: {}
     }
   )
     attr_reader :input_params, :options
