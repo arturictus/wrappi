@@ -1,5 +1,5 @@
 FROM ruby:2.5.3-alpine
-CMD ['/bin/sh -c "bin/rails server -b 0.0.0.0 -p 9873"']
+CMD ["bin/rails", "server", "-b", "0.0.0.0", "-p", "9873"]
 # Minimal requirements to run a Rails app
 RUN apk add --no-cache --update build-base \
                                 linux-headers \
