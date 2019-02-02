@@ -37,6 +37,7 @@ module Wrappi
     def success?; response.success? end
     def status; response.status end
     def error?; !success? end
+    def flush; @response = nil end
 
     def async(async_options = {})
       async_handler.call(self, async_options)
@@ -58,45 +59,46 @@ module Wrappi
       end.to_s
     end
 
-    def perform_async_callback(async_options = {})
-      instance_exec(async_options, &async_callback)
-    end
 
     def self.async_callback(&block)
       @async_callback = block
     end
 
-    def async_callback
-      self.class.instance_variable_get(:@async_callback) || proc {}
-    end
-
-    # AROUND REQUEST
     def self.around_request(&block)
       @around_request = block
     end
-    def around_request
-      self.class.instance_variable_get(:@around_request)
-    end
 
-    # RETRY
     def self.retry_if(&block)
       @retry_if = block
     end
-    def retry_if
-      self.class.instance_variable_get(:@retry_if)
+
+    def perform_async_callback(async_options = {})
+      instance_exec(async_options, &async_callback)
     end
 
-    # Cache
     def cache_key
       # TODO: think headers have to be in the key as well
       @cache_key ||= "[#{verb.to_s.upcase}]##{url}#{params_cache_key}"
     end
 
+    def around_request
+      self.class.instance_variable_get(:@around_request)
+    end
+
+    def retry_if
+      self.class.instance_variable_get(:@retry_if)
+    end
+    
+    private
+
+    def async_callback
+      self.class.instance_variable_get(:@async_callback) || proc {}
+    end
+
+
     def logger
       client.logger
     end
-
-    private
 
     # Overridable
     def async_handler
