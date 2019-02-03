@@ -5,9 +5,29 @@ require 'miller'
 require 'retryable'
 
 module Wrappi
-  class TimeoutError < StandardError; end
-  class NotAuthorizedAccessError < StandardError; end
-  class JsonParseError < StandardError; end
+  class Error < StandardError; end
+  class TimeoutError < Error; end
+  class JsonParseError < Error; end
+  class ConnectionError < Error; end
+  class RequestError < Error; end
+  class ResponseError < Error; end
+  class StateError < ResponseError; end
+  class TimeoutError < Error; end
+  class HeaderError < Error; end
+
+  def self.errors
+    [
+      Error,
+      TimeoutError,
+      JsonParseError,
+      ConnectionError,
+      RequestError,
+      ResponseError,
+      StateError,
+      TimeoutError,
+      HeaderError
+    ]
+  end
 end
 
 require 'wrappi/async_job'
