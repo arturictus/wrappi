@@ -9,8 +9,13 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Artur Pañach"]
   spec.email         = ["arturictus@gmail.com"]
 
-  spec.summary       = %q{Framework to create HTTP API clients}
-  spec.description   = %q{Framework to create HTTP API clients. The aim is to abstract the best practices using a declarative interface.}
+  spec.summary       = %q{Making APIs fun again!}
+  spec.description   = %q{Wrappi is a Framework to create API clients.
+The intention is to bring the best practices and standardize how API clients behave.
+It allows to create API clients in a declarative way improving readability and unifying the behavior.
+It abstracts complex operations like caching, retries, background request and error handling.
+
+Enjoy!}
   spec.homepage      = "https://github.com/arturictus/wrappi"
   spec.license       = "MIT"
 

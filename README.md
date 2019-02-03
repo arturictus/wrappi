@@ -3,10 +3,12 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/test_coverage)](https://codeclimate.com/github/arturictus/wrappi/test_coverage)
 
 # Wrappi
+Making APIs fun again!
 
-Framework to create API clients.
-The intention is to bring the best practices and standarize the mess it's currently happening with the API clients.
-It allows to create API clients in a declarative way improving readability and unifying the behavior.
+Wrappi is a Framework to create API clients. The intention is to bring the best practices and standardize how API clients behave.
+It allows to create API clients in a declarative way improving readability and unifying the behavior. It abstracts complex operations like caching, retries background requests and error handling.
+
+Enjoy!
 
 ## Installation
 
@@ -29,7 +31,7 @@ Or install it yourself as:
 __Github example:__
 
 ```ruby
-module Github
+module GithubAPI
   class Client < Wrappi::Client
     setup do |config|
       config.domain = 'https://api.github.com'
@@ -49,11 +51,189 @@ end
 ```
 
 ```ruby
-user = Github::User.new(username: 'arturictus')
+user = GithubAPI::User.new(username: 'arturictus')
 user.success? # => true
 user.error? # => false
 user.status_code # => 200
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+```
+
+#### Async
+Wrappi comes with a background Job out of the box. If you are in a Rails app the `#async`
+method will queue a new job (`< ActiveJob::Base`) that will make the request and trigger the async callback
+after the request is made.
+
+example:
+
+```ruby
+class User < Wrappi::Endpoint
+  client Client
+  verb :get
+  path "users/:username"
+  async_callback do |opts|
+    # this will be called in background after the request is made
+    if success?
+      if opts[:create]
+        CreateUserService.call(body)
+      elsif opts[:update]
+        UpdateUserService.call(body)
+      end
+    end
+  end
+end
+# This will execute the request in a background job
+Github::User.new(username: 'arturictus').async(create: true)
+```
+
+If you need to send options to your Job (the `::set` method) you can pass the key `set`
+to the options.
+
+```ruby
+Github::User.new(username: 'arturictus').async(create: true, set: { wait: 10.minutes })
+```
+
+#### Cache
+You can enable cache per endpoint.
+
+Set the cache Handler in your client.
+It must behave like `Rails.cache` and respond to:
+  - `read([key])`
+  - `write([key, value, options])`
+
+```ruby
+class Client < Wrappi::Client
+  setup do |config|
+    config.domain = 'https://api.github.com'
+    config.cache = Rails.cache
+  end
+end
+```
+
+Enable cache in your endpoint.
+```ruby
+class User < Wrappi::Endpoint
+  cache true # enable for endpoint
+  client Client
+  verb :get
+  path "users/:username"
+end
+
+user = User.new(username: 'arturictus')
+user.response.class # => Wrappi::Response
+user.flush
+user.response.class # => Wrappi::CachedResponse
+user.success? # => true
+user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+```
+
+When cached the response will be a `Wrappi::CachedResponse`. `Wrappi::CachedResponse` behaves
+like `Wrappi::Response` that means you can use the endpoint in the same way as it was a non cached.
+See `cache_options` to fine tune your cache with expiration and other cache options.
+
+You can use options to cache a single request.
+
+```ruby
+class User < Wrappi::Endpoint
+  client Client
+  verb :get
+  path "users/:username"
+end
+User.new({username: 'arturictus'}, cache: true)
+user.response.class # => Wrappi::Response
+user.flush
+user.response.class # => Wrappi::CachedResponse
+user.success? # => true
+user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+```
+
+#### Retry
+Sometimes you want to retry if certain conditions affected your request.
+
+This will retry if status code is not `200`
+
+```ruby
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+    retry_if do |response, endpoint|
+      endpoint.status_code != 200
+    end
+  end
+```
+
+Check more configuration options and examples for `retry_if` and `retry_options` below.
+
+#### Flexibility
+
+__options:__
+
+Pass a second argument with options.
+```ruby
+params = { username: 'arturictus' }
+options = { options_in_my_instance: "yeah!" }
+
+User.new(params, options)
+```
+
+__Dynamic configurations:__
+
+All the configs in `Endpoint` are evaluated at instance level except: `around_request` and `retry_if` because of their nature.
+That allows you to fine tune the configuration at a instance level.
+
+example:
+
+Right now the default for `cache` config is: `proc { options[:cache] }`.
+
+```ruby
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+    cache do
+      if input_params[:username] == 'arturictus'
+        false
+      else
+        options[:cache]          
+      end
+    end
+  end
+```
+
+
+
+__endpoint is a ruby class:__ :open_mouth:
+
+```ruby
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+    cache do
+      cache?
+    end
+
+    def cache?
+      if input_params[:username] == 'arturictus'
+        false
+      else
+        options[:cache]          
+      end
+    end
+
+    def parsed_response
+      @parsed_response ||= MyParser.new(body)
+    end
+  end
+```
+
+__inheritance:__
+All the configs will be inherited
+
+```ruby
+class UserDetail < User
+  path "users/:username/detail"
+end
 ```
 
 ### Configurations
@@ -64,28 +244,32 @@ user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 |-----------------|--------------------------|--------------------------------------------------------------------------|----------|
 | domain          | String                   |                                                                          | *        |
 | params          | Hash                     |                                                                          |          |
-| logger          | Logger                   | Logger.new(STDOUT)                                                       |          |
 | headers         | Hash                     | { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } |          |
-| ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
+| async_handler   | const                    | Wrappi::AsyncHandler                                                     |          |
+| cache           | const                    |                                                                          |          |
+| logger          | Logger                   | Logger.new(STDOUT)                                                       |          |
+| timeout         | Hash                     | { write: 9, connect: 9, read: 9 }                                        |          |
 | use_ssl_context | Boolean                  | false                                                                    |          |
+| ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
 
 #### Endpoint
 
-| Name             | Type                                     | Default                 | Required |
-|------------------|------------------------------------------|-------------------------|----------|
-| client           | Wrappi::Client                           |                         | *        |
-| path             | String                                   |                         | *        |
-| verb             | Symbol                                   | :get                    | *        |
+| Name             | Type                                       | Default                 | Required |
+|------------------|--------------------------------------------|-------------------------|----------|
+| client           | Wrappi::Client                             |                         | *        |
+| path             | String                                     |                         | *        |
+| verb             | Symbol                                     | :get                    | *        |
 | default_params   | Hash `or` block -> Hash                    | {}                      |          |
 | headers          | Hash `or` block -> Hash                    | proc { client.headers } |          |
 | basic_auth       | Hash (keys: user, pass) `or` block -> Hash |                         |          |
 | follow_redirects | Boolean `or` block -> Boolean              | true                    |          |
-| body_type        | Symbol, one of: :json,:form,:body        | :json                   |          |
-| cache            | Boolean `or` block -> Boolean              | false                   |          |
-| cache_options    | Hash `or` block -> Hash                    | {}                      |          |
-| retry_if         | block                                    |                         |          |
-| retry_options    | Hash `or` block -> Hash                    | {}                      |          |
-| around_request   | block                                    |                         |          |
+| body_type        | Symbol, one of: :json,:form,:body          | :json                   |          |
+| cache            | Boolean `or` block -> Boolean              | proc { options[:cache] }|          |
+| cache_options    | Hash `or` block -> Hash                    |                         |          |
+| retry_if         | block                                      |                         |          |
+| retry_options    | Hash `or` block -> Hash                    |                         |          |
+| around_request   | block                                      |                         |          |
+| async_callback   | block                                      |                         |          |
 
 ### Client
 
@@ -129,6 +313,42 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       "Auth-Token" => "verysecret"
     }
     ```
+  - __async_handler:__ If you are not in Rails app or you have another background mechanism in place
+    you can configure here how the requests will be send to the background.
+    When `#async` is called on an Endpoint instance the `async_handler` const will be called with:
+    current endpoint instance (`self`) and the options passed to the async method.
+    ```ruby
+    class MyAsyncHandler
+      def self.call(endpoint, opts)
+        # send to background
+      end
+    end
+    class Client < Wrappi::Client
+      setup do |config|
+        config.domain = 'https://api.github.com'
+        config.async_handler = MyAsyncHandler
+      end
+    end
+    endpoint_inst.async(this_opts_are_for_the_handler: true)
+    ```
+
+  - __timeout:__ Set your specific timout. When you set timeout it will be merged with defaults.
+
+    default: `{ write: 9, connect: 9, read: 9 }`
+
+    ```ruby
+      class Client < Wrappi::Client
+        setup do |config|
+          config.domain = 'https://api.github.com'
+          config.timeout = { read: 3 }
+        end
+      end
+      Client.timeout # => { write: 9, connect: 9, read: 3 }
+    ```
+
+  - __use_ssl_context:__ It has to be set to `true` for using the `ssl_context`
+
+     default: `false`
 
   - __ssl_context:__ If you need to set an ssl_context.
 
@@ -138,10 +358,6 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
                             ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
                           end
      ```
-
-  - __use_ssl_context:__ It has to be set to `true` for using the `ssl_context`
-
-     default: `false`
 
 ### Endpoint
 
@@ -224,7 +440,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       end
     ```
 
-  - __follow_redirects:__ If first request responds a redirect it will follow them.
+  - __follow_redirects:__ If the request responds with a redirection it will follow them.
 
     default: `true`
 
@@ -235,6 +451,21 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
     - :json
     - :form
     - :body (Binary data)
+
+  - __async_callback:__ When request is executed in the background with `#async(opts = {})` this
+    callback will be called with this opts as and argument in the block.
+    The block is executed in the endpoint instance. You can access to all the methods in Endpoint.
+
+    default: `proc {}`
+
+    ```ruby
+    async_callback do |opts|
+      if success?
+        MyCreationService.call(body) if opts[:create]
+      end
+    end
+    MyEndpoint.new().async(create: true)
+    ```
 
 #### Flow Control:
 
@@ -249,7 +480,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
 
   - __cache:__ Cache the request if successful.
 
-    default: `false`
+    default: `proc { options[:cache] }`
   - __cache_options:__ Options for the `cache` to receive on `write`
    ```ruby
      cache_options expires_in: 12, another_opt: true
@@ -300,11 +531,10 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
 
 After checking out the repo, run `bin/setup` to install dependencies.
 
-Run test:
 ```
 bin/dev_server
 ```
-This will run a rails server. The test are running agains it.
+This will run a rails server. The test are running against it.
 
 ```
 bundle exec rspec

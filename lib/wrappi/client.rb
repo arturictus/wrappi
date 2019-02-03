@@ -2,10 +2,6 @@ require 'logger'
 module Wrappi
   # This class is expected to handle all the configurations for your main module
   class Client
-    class TimeoutError < StandardError; end
-    class JsonParseError < StandardError; end
-    class NotAuthorizedAccessError < StandardError; end
-
     include Fusu::Configurable
 
     # Not verify example
@@ -21,6 +17,7 @@ module Wrappi
     end
     config_accessor(:params) { {} }
     config_accessor(:cache)
+    config_accessor(:async_handler) { AsyncHandler }
 
     def self.setup
       yield(self)
