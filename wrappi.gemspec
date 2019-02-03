@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Wrappi is a Framework to create API clients.
 The intention is to bring the best practices and standardize how API clients behave.
 It allows to create API clients in a declarative way improving readability and unifying the behavior.
-It abstracts complex operations like caching, retries and error handling.
+It abstracts complex operations like caching, retries, background request and error handling.
 
 Enjoy!}
   spec.homepage      = "https://github.com/arturictus/wrappi"
