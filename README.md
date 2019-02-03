@@ -3,10 +3,12 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/test_coverage)](https://codeclimate.com/github/arturictus/wrappi/test_coverage)
 
 # Wrappi
+Making APIs fun again!
 
-Framework to create API clients.
-The intention is to bring the best practices and standardize how API clients and request.
-It allows to create API clients in a declarative way improving readability and unifying the behavior.
+Wrappi is a Framework to create API clients. The intention is to bring the best practices and standardize how API clients behave.
+It allows to create API clients in a declarative way improving readability and unifying the behavior. It abstracts complex operations like caching, retries and error handling.
+
+Enjoy!
 
 ## Installation
 
@@ -529,11 +531,10 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
 
 After checking out the repo, run `bin/setup` to install dependencies.
 
-Run test:
 ```
 bin/dev_server
 ```
-This will run a rails server. The test are running agains it.
+This will run a rails server. The test are running against it.
 
 ```
 bundle exec rspec
