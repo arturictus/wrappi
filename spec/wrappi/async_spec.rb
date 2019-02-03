@@ -5,14 +5,10 @@ module Wrappi
     client Dummy
     path "/dummy/:user_id"
     async_callback do |async_options|
-      options[:async_options] = async_options
-      if success?
-        options[:success] = true
-      else
-        options[:error] = true
-      end
+      raise "async_callback_called"
     end
   end
+
   describe AsyncJob do
     let(:options) { {} }
     let(:async_options) { { set: { wait: 12 }, foo: :bar} }
@@ -20,10 +16,8 @@ module Wrappi
     let(:endpoint_args) { {params: params, options: options} }
 
     shared_examples "async flow" do
-      it "Job gets called with options" do
-        subject
-        expect(options.fetch(:success)).to be true
-        expect(options.fetch(:async_options)).to eq async_options
+      it "async_callback gets called" do
+        expect { subject }.to raise_error('async_callback_called')
       end
     end
 
@@ -45,6 +39,17 @@ module Wrappi
       subject do
         inst = AsyncEndpoint.new(params, options)
         inst.async(async_options)
+      end
+      include_examples 'async flow'
+    end
+    describe AsyncHandler do
+      subject do
+        inst = AsyncEndpoint.new(params, options)
+        described_class.call(inst, async_options)
+      end
+      before do
+        expect(AsyncJob).to receive(:set).with(async_options[:set]).and_call_original
+        expect(AsyncJob).to receive(:perform_later).with(AsyncEndpoint.to_s, endpoint_args, async_options).and_call_original
       end
       include_examples 'async flow'
     end

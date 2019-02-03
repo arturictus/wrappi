@@ -13,7 +13,7 @@ module Wrappi
       headers: proc { client.headers },
       follow_redirects: true,
       body_type: :json,
-      cache: false,
+      cache: proc { options[:cache] },
       cache_options: {},
       async_callback: proc {}
     }
@@ -88,7 +88,7 @@ module Wrappi
     def retry_if
       self.class.instance_variable_get(:@retry_if)
     end
-    
+
     private
 
     def async_callback

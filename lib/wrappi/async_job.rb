@@ -9,23 +9,18 @@ module Wrappi
       inst.perform_async_callback(@options)
     end
 
+    private
+
     def parse(data)
-      return data if data.is_a?(Hash)
-      JSON.parse(data) rescue {}
+      return ia(data) if data.is_a?(Hash)
+      ia(JSON.parse(data)) rescue {}
     rescue
       data
     end
 
-    # def parse(data)
-    #   return ia(data) if data.is_a?(Hash)
-    #   ia(JSON.parse(data)) rescue {}
-    # rescue
-    #   data
-    # end
-
-    # def ia(data)
-    #   Fusu::HashWithIndifferentAccess.new(data)
-    # end
+    def ia(data)
+      Fusu::HashWithIndifferentAccess.new(data)
+    end
 
     def endpoint_const
       Class.const_get(@endpoint_class)

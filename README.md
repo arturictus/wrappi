@@ -93,6 +93,11 @@ Github::User.new(username: 'arturictus').async(create: true, set: { wait: 10.min
 #### Cache
 You can enable cache per endpoint.
 
+Set the cache Handler in your client.
+It must behave like `Rails.cache` and respond to:
+  - `read([key])`
+  - `write([key, value, options])`
+
 ```ruby
 class Client < Wrappi::Client
   setup do |config|
@@ -100,9 +105,12 @@ class Client < Wrappi::Client
     config.cache = Rails.cache
   end
 end
+```
 
+Enable cache in your endpoint.
+```ruby
 class User < Wrappi::Endpoint
-  cache true
+  cache true # enable for endpoint
   client Client
   verb :get
   path "users/:username"
@@ -115,7 +123,82 @@ user.response.class # => Wrappi::CachedResponse
 user.success? # => true
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 ```
+
+When cached the response will be a `Wrappi::CachedResponse`. `Wrappi::CachedResponse` behaves
+like `Wrappi::Response` that means you can use the endpoint in the same way as it was a non cached.
+See `cache_options` to fine tune your cache with expiration and other cache options.
+
+You can use options to cache a single request.
+
+```ruby
+class User < Wrappi::Endpoint
+  client Client
+  verb :get
+  path "users/:username"
+end
+User.new({username: 'arturictus'}, cache: true)
+user.response.class # => Wrappi::Response
+user.flush
+user.response.class # => Wrappi::CachedResponse
+user.success? # => true
+user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+```
+
 #### Retry
+Sometimes you want to retry if certain conditions affected your request.
+
+This will retry if status code is not `200`
+
+```ruby
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+    retry_if do |response, endpoint|
+      endpoint.status_code != 200
+    end
+  end
+```
+
+Check more configuration options and examples for `retry_if` and `retry_options` below.
+
+#### Flexibility
+
+__options:__
+
+Pass a second argument with options.
+```ruby
+params = { username: 'arturictus' }
+options = { options_in_my_instance: "yeah!" }
+
+User.new(params, options)
+```
+
+__Dynamic configurations:__
+
+Endpoint configurations are executed in the `Endpoint` instance. That allows you to
+fine tune the configuration at a instance level.
+
+example:
+
+Right now the default for `cache` config is: `proc { options[:cache] }`.
+
+```ruby
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+    cache do
+      if input_params[:username] == 'arturictus'
+        false
+      else
+        options[:cache]          
+      end
+    end
+  end
+```
+
+All the configs in `Endpoint` are evaluated at instance level except: `around_request` and `retry_if` because of they nature.
 
 
 ### Configurations
@@ -130,8 +213,9 @@ user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 | async_handler   | const                    | Wrappi::AsyncHandler                                                     |          |
 | cache           | const                    |                                                                          |          |
 | logger          | Logger                   | Logger.new(STDOUT)                                                       |          |
-| ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
+| timeout         | Hash                     | { write: 9, connect: 9, read: 9 }                                        |          |
 | use_ssl_context | Boolean                  | false                                                                    |          |
+| ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
 
 #### Endpoint
 
@@ -145,7 +229,7 @@ user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 | basic_auth       | Hash (keys: user, pass) `or` block -> Hash |                         |          |
 | follow_redirects | Boolean `or` block -> Boolean              | true                    |          |
 | body_type        | Symbol, one of: :json,:form,:body          | :json                   |          |
-| cache            | Boolean `or` block -> Boolean              | false                   |          |
+| cache            | Boolean `or` block -> Boolean              | proc { options[:cache] }|          |
 | cache_options    | Hash `or` block -> Hash                    |                         |          |
 | retry_if         | block                                      |                         |          |
 | retry_options    | Hash `or` block -> Hash                    |                         |          |
@@ -194,20 +278,6 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       "Auth-Token" => "verysecret"
     }
     ```
-
-  - __ssl_context:__ If you need to set an ssl_context.
-
-     default: `nil`
-     ```ruby
-     config.ssl_context = OpenSSL::SSL::SSLContext.new.tap do |ctx|
-                            ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
-                          end
-     ```
-
-  - __use_ssl_context:__ It has to be set to `true` for using the `ssl_context`
-
-     default: `false`
-
   - __async_handler:__ If you are not in Rails app or you have another background mechanism in place
     you can configure here how the requests will be send to the background.
     When `#async` is called on an Endpoint instance the `async_handler` const will be called with:
@@ -226,6 +296,33 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
     end
     endpoint_inst.async(this_opts_are_for_the_handler: true)
     ```
+
+  - __timeout:__ Set your specific timout. When you set timeout it will be merged with defaults.
+
+    default: `{ write: 9, connect: 9, read: 9 }`
+
+    ```ruby
+      class Client < Wrappi::Client
+        setup do |config|
+          config.domain = 'https://api.github.com'
+          config.timeout = { read: 3 }
+        end
+      end
+      Client.timeout # => { write: 9, connect: 9, read: 3 }
+    ```
+
+  - __use_ssl_context:__ It has to be set to `true` for using the `ssl_context`
+
+     default: `false`
+
+  - __ssl_context:__ If you need to set an ssl_context.
+
+     default: `nil`
+     ```ruby
+     config.ssl_context = OpenSSL::SSL::SSLContext.new.tap do |ctx|
+                            ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+                          end
+     ```
 
 ### Endpoint
 
@@ -308,7 +405,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       end
     ```
 
-  - __follow_redirects:__ If first request responds a redirect it will follow them.
+  - __follow_redirects:__ If the request responds with a redirection it will follow them.
 
     default: `true`
 
@@ -348,7 +445,7 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
 
   - __cache:__ Cache the request if successful.
 
-    default: `false`
+    default: `proc { options[:cache] }`
   - __cache_options:__ Options for the `cache` to receive on `write`
    ```ruby
      cache_options expires_in: 12, another_opt: true

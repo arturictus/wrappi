@@ -7,6 +7,7 @@ require 'retryable'
 module Wrappi
   class TimeoutError < StandardError; end
   class NotAuthorizedAccessError < StandardError; end
+  class JsonParseError < StandardError; end
 end
 
 require 'wrappi/async_job'
