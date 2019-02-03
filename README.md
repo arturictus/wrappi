@@ -176,8 +176,8 @@ User.new(params, options)
 
 __Dynamic configurations:__
 
-Endpoint configurations are executed in the `Endpoint` instance. That allows you to
-fine tune the configuration at a instance level.
+All the configs in `Endpoint` are evaluated at instance level except: `around_request` and `retry_if` because of their nature.
+That allows you to fine tune the configuration at a instance level.
 
 example:
 
@@ -198,8 +198,41 @@ Right now the default for `cache` config is: `proc { options[:cache] }`.
   end
 ```
 
-All the configs in `Endpoint` are evaluated at instance level except: `around_request` and `retry_if` because of they nature.
 
+
+__endpoint is a ruby class:__ :open_mouth:
+
+```ruby
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+    cache do
+      cache?
+    end
+
+    def cache?
+      if input_params[:username] == 'arturictus'
+        false
+      else
+        options[:cache]          
+      end
+    end
+
+    def parsed_response
+      @parsed_response ||= MyParser.new(body)
+    end
+  end
+```
+
+__inheritance:__
+All the configs will be inherited
+
+```ruby
+class UserDetail < User
+  path "users/:username/detail"
+end
+```
 
 ### Configurations
 
