@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/arturictus/wrappi.svg?branch=master)](https://travis-ci.org/arturictus/wrappi)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/maintainability)](https://codeclimate.com/github/arturictus/wrappi/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8751a0b6523a52b5e23e/test_coverage)](https://codeclimate.com/github/arturictus/wrappi/test_coverage)
+[![Coverage Status](https://coveralls.io/repos/github/arturictus/wrappi/badge.svg?branch=master)](https://coveralls.io/github/arturictus/wrappi?branch=master)
 
 # Wrappi
 Making APIs fun again!

@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 require 'wrappi'
 require 'pry'
 require 'cache_mock'
