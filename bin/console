@@ -5,7 +5,7 @@ require "wrappi"
 
 # Github example:
 
-module Github
+module GithubCLI
   class Client < Wrappi::Client
     setup do |config|
       config.domain = 'https://api.github.com'
@@ -14,11 +14,27 @@ module Github
         'Accept' => 'application/vnd.github.v3+json',
       }
     end
+
+    class << self
+      attr_accessor :my_custom_config
+    end
   end
-  class User < Wrappi::Endpoint
+
+  def self.setup
+    yield(Client)
+  end
+
+  class Endpoint < Wrappi::Endpoint
     client Client
+  end
+
+  class User < Endpoint
     verb :get
     path "users/:username"
+  end
+
+  def self.user(params, opts = {})
+    User.new(params, opts)
   end
 end
 
