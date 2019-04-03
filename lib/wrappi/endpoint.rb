@@ -112,8 +112,29 @@ module Wrappi
       "?#{d}"
     end
 
+    # URI behaviour
+    # example:
+    #
+    #     URI.join('https://hello.com/foo/bar', '/bin').to_s
+    #     => "https://hello.com/bin"
+    #
+    #     URI.join('https://hello.com/foo/bar', 'bin').to_s
+    #     => "https://hello.com/foo/bin"
+    #
+    #
+    #     URI.join('https://hello.com/foo/bar/', '/bin').to_s
+    #     => "https://hello.com/bin"
+    #
+    #     We want this behaviour:
+    #     URI.join('https://hello.com/foo/bar/', 'bin').to_s
+    #     => "https://hello.com/foo/bar/bin"
     def _url
-      URI.join("#{client.domain}/", path_gen.path) # TODO: remove heading "/" of path
+      URI.join(domain, path_gen.for_uri)
+    end
+
+    def domain
+      return client.domain if client.domain =~ /\/$/
+      "#{client.domain}/"
     end
 
     def params

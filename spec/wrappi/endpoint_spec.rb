@@ -73,5 +73,47 @@ module Wrappi
         expect(inst.cache_key).to eq "[GET]#https://api.github.com/users?50b6137335559d7afac1144578f8e178"
       end
     end
+
+    describe '#url' do
+      it 'domain has path' do
+        client = Class.new(Wrappi::Client) do
+          setup do |config|
+            config.domain = 'https://api.github.com/foo/bar'
+          end
+        end
+        klass = Class.new(described_class) do
+          client client
+          path "/users"
+        end
+        inst = klass.new()
+        expect(inst.url.to_s).to eq 'https://api.github.com/foo/bar/users'
+      end
+      it 'domain has path and trailing /' do
+        client = Class.new(Wrappi::Client) do
+          setup do |config|
+            config.domain = 'https://api.github.com/foo/bar/'
+          end
+        end
+        klass = Class.new(described_class) do
+          client client
+          path "/users"
+        end
+        inst = klass.new()
+        expect(inst.url.to_s).to eq 'https://api.github.com/foo/bar/users'
+      end
+      it 'domain has path and trailing / and path does not start with /' do
+        client = Class.new(Wrappi::Client) do
+          setup do |config|
+            config.domain = 'https://api.github.com/foo/bar/'
+          end
+        end
+        klass = Class.new(described_class) do
+          client client
+          path "users"
+        end
+        inst = klass.new()
+        expect(inst.url.to_s).to eq 'https://api.github.com/foo/bar/users'
+      end
+    end
   end
 end
