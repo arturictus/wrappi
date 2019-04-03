@@ -15,7 +15,8 @@ module Wrappi
       body_type: :json,
       cache: proc { options[:cache] },
       cache_options: {},
-      async_callback: proc {}
+      async_callback: proc {},
+      basic_auth: proc { client.basic_auth }
     }
   )
     attr_reader :input_params, :options

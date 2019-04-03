@@ -85,4 +85,24 @@ shared_examples 'request_examples' do
     end
   end
 
+  context "basic_auth from client" do
+    subject do
+      klass = Class.new(endpoint) do
+        client DummyBasicAuth
+        path '/dummy_basic_auth'
+      end
+      klass.new(params)
+    end
+    it "valid authentication" do
+      expect(response.status).to eq 200
+      expect(response.success?).to be true
+      expect(response.body.dig('request', 'path')).to eq '/dummy_basic_auth'
+    end
+    it "invalid authentication" do
+      subject.basic_auth = { user: 'wrappi', pass: 'wrong'}
+      expect(response.status).to eq 401
+      expect(response.success?).to be false
+    end
+  end
+
 end

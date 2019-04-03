@@ -251,6 +251,7 @@ end
 | timeout         | Hash                     | { write: 9, connect: 9, read: 9 }                                        |          |
 | use_ssl_context | Boolean                  | false                                                                    |          |
 | ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
+| basic_auth      | Hash (keys: user, pass) `or` block -> Hash |                                                        |          |
 
 #### Endpoint
 
@@ -261,7 +262,7 @@ end
 | verb             | Symbol                                     | :get                    | *        |
 | default_params   | Hash `or` block -> Hash                    | {}                      |          |
 | headers          | Hash `or` block -> Hash                    | proc { client.headers } |          |
-| basic_auth       | Hash (keys: user, pass) `or` block -> Hash |                         |          |
+| basic_auth       | Hash (keys: user, pass) `or` block -> Hash | proc { client.basic_auth } |          |
 | follow_redirects | Boolean `or` block -> Boolean              | true                    |          |
 | body_type        | Symbol, one of: :json,:form,:body          | :json                   |          |
 | cache            | Boolean `or` block -> Boolean              | proc { options[:cache] }|          |
