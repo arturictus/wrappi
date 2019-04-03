@@ -251,7 +251,7 @@ end
 | timeout         | Hash                     | { write: 9, connect: 9, read: 9 }                                        |          |
 | use_ssl_context | Boolean                  | false                                                                    |          |
 | ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
-| basic_auth      | Hash (keys: user, pass) `or` block -> Hash |                                                        |          |
+| basic_auth      | Hash (keys: user, pass)  |                                                                          |          |
 
 #### Endpoint
 
