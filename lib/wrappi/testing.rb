@@ -6,8 +6,8 @@ module Wrappi
     end
 
     def fixture_params_key
-      return if input_params.empty?
-      d = Digest::MD5.hexdigest input_params.to_json
+      return if processed_params.empty?
+      d = Digest::MD5.hexdigest processed_params.to_json
       "-#{d}"
     end
 
