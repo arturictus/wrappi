@@ -251,6 +251,7 @@ end
 | timeout         | Hash                     | { write: 9, connect: 9, read: 9 }                                        |          |
 | use_ssl_context | Boolean                  | false                                                                    |          |
 | ssl_context     | OpenSSL::SSL::SSLContext |                                                                          |          |
+| basic_auth      | Hash (keys: user, pass)  |                                                                          |          |
 
 #### Endpoint
 
@@ -261,7 +262,7 @@ end
 | verb             | Symbol                                     | :get                    | *        |
 | default_params   | Hash `or` block -> Hash                    | {}                      |          |
 | headers          | Hash `or` block -> Hash                    | proc { client.headers } |          |
-| basic_auth       | Hash (keys: user, pass) `or` block -> Hash |                         |          |
+| basic_auth       | Hash (keys: user, pass) `or` block -> Hash | proc { client.basic_auth } |          |
 | follow_redirects | Boolean `or` block -> Boolean              | true                    |          |
 | body_type        | Symbol, one of: :json,:form,:body          | :json                   |          |
 | cache            | Boolean `or` block -> Boolean              | proc { options[:cache] }|          |
@@ -526,6 +527,68 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
       endpoint.logger.info("response status is: #{request.status_code}")
     end
   ```
+
+## Code Organization
+### Build a gem
+
+Wrappi is designed to be able to build HTTP client gems with it.
+
+```ruby
+module GithubCLI
+  class Client < Wrappi::Client
+    setup do |config|
+      config.domain = 'https://api.github.com'
+      config.headers = {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/vnd.github.v3+json',
+      }
+    end
+
+    class << self
+      attr_accessor :my_custom_config
+    end
+  end
+
+  def self.setup
+    yield(Client)
+  end
+
+  class Endpoint < Wrappi::Endpoint
+    client Client
+  end
+
+  class User < Endpoint
+    verb :get
+    path "users/:username"
+  end
+
+  def self.user(params, opts = {})
+    User.new(params, opts)
+  end
+end
+
+user = GithubCLI.user(username: 'arturictus')
+user.success?
+```
+
+### In your project
+
+## The HTTP clients war
+
+In ruby there are many ruby clients an everyone has an opinion of which one is the
+best.
+Every new API client that you install in your project will install a different HTTP client
+adding redundant and unnecessary dependencies in your project.
+That's why __Wrappi is designed to be HTTP client agnostic__.
+Right now is implemented with [HTTP gem](https://github.com/http/http) (my favorite) but all the logic is decoupled from
+the HTTP client.
+
+All the configuration, metadata and logic to build the request is hold by an instance of Endpoint. Allowing to create adapters that translates this processed metadata to the target HTTP client.
+
+__Tests are HTTP client agnostic__. To help the development of these adapters and probe the reliability of the gem most of the test are run against a Rails application. __All the tests that probe an HTTP call are running this HTTP call against a local server__ making all test End To End and again, HTTP client agnostic.
+
+Right now is not designed the system to change HTTP clients via configuration but if you are interested to implement one let me know
+and we will figure out the way.
 
 ## Development
 

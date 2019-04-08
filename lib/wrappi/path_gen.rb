@@ -15,6 +15,28 @@ module Wrappi
     end
     alias_method :path, :compiled_path
 
+    # removes first character if path starts with `/`
+    # this is because URI will remove all the paths in between
+    # example:
+    #
+    #     URI.join('https://hello.com/foo/bar', '/bin').to_s
+    #     => "https://hello.com/bin"
+    #
+    #     URI.join('https://hello.com/foo/bar', 'bin').to_s
+    #     => "https://hello.com/foo/bin"
+    #
+    #
+    #     URI.join('https://hello.com/foo/bar/', '/bin').to_s
+    #     => "https://hello.com/bin"
+    #
+    #     We want this behaviour:
+    #     URI.join('https://hello.com/foo/bar/', 'bin').to_s
+    #     => "https://hello.com/foo/bar/bin"
+    def for_uri
+      return compiled_path unless compiled_path =~ /^\//
+      compiled_path.dup.tap { |s| s[0] = '' }
+    end
+
     def processed_params
       return input_params unless interpolable?
       @processed_params ||= input_params.reject{ |k, v| keys_in_params.include?(k.to_sym) }
