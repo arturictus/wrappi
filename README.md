@@ -266,7 +266,7 @@ end
 | follow_redirects | Boolean `or` block -> Boolean              | true                    |          |
 | body_type        | Symbol, one of: :json,:form,:body          | :json                   |          |
 | cache            | Boolean `or` block -> Boolean              | proc { options[:cache] }|          |
-| cache_options    | Hash `or` block -> Hash                    |                         |          |
+| cache_options    | block -> Hash                              |                         |          |
 | retry_if         | block                                      |                         |          |
 | retry_options    | Hash `or` block -> Hash                    |                         |          |
 | around_request   | block                                      |                         |          |
@@ -484,16 +484,17 @@ It holds the common configuration for all the endpoints (`Wrappi::Endpoint`).
     default: `proc { options[:cache] }`
   - __cache_options:__ Options for the `cache` to receive on `write`
    ```ruby
-     cache_options expires_in: 12, another_opt: true
+     cache_options do
+       { expires_in: 12, another_opt: true }
+     end
    ```
 
    default: `{}`
   - __retry_if:__ Block to evaluate if request has to be retried. In the block are
-    yielded `Response` and `Endpoint` instances. If the block returns `true` the request will be retried.
+    yielded `Response` instance. If the block returns `true` the request will be retried.
     ```ruby
-      retry_if do |response, endpoint|
-        endpoint.class #=> MyEndpoint
-        response.error? # => true or false
+      retry_if do |response|
+        response.status != 200 # => true or false
       end
     ```
 

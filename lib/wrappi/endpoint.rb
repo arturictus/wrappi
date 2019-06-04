@@ -3,7 +3,7 @@ module Wrappi
   class Endpoint < Miller.base(
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
-    :body_type, :retry_options, :cache, :cache_options,
+    :body_type, :retry_options, :cache, #:cache_options,
     :async_callback,
     default_config: {
       verb: :get,
@@ -14,7 +14,7 @@ module Wrappi
       follow_redirects: true,
       body_type: :json,
       cache: proc { options[:cache] },
-      cache_options: {},
+      # cache_options: {},
       async_callback: proc {},
       basic_auth: proc { client.basic_auth }
     }
@@ -73,6 +73,10 @@ module Wrappi
       @retry_if = block
     end
 
+    def self.cache_options(&block)
+      @cache_options = block
+    end
+
     def perform_async_callback(async_options = {})
       instance_exec(async_options, &async_callback)
     end
@@ -88,6 +92,9 @@ module Wrappi
 
     def retry_if
       self.class.instance_variable_get(:@retry_if)
+    end
+    def cache_options
+      self.class.instance_variable_get(:@cache_options)
     end
 
     private

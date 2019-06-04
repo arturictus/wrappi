@@ -10,7 +10,7 @@ module Wrappi
         cached = cache.read(cache_key)
         return CachedResponse.new(cached) if cached
         response = yield
-        cache.write(cache_key, response.to_h, cache_options) if response.success?
+        cache.write(cache_key, response.to_h, cache_options(response)) if response.success?
         response
       end
 
@@ -27,8 +27,8 @@ module Wrappi
         end
       end
 
-      def cache_options
-        endpoint.cache_options
+      def cache_options(response)
+        endpoint.cache_options ? endpoint.cache_options.call(response) : {}
       end
 
       def cache

@@ -143,7 +143,9 @@ module Wrappi
           cache_options = { expires_in: 12 }
           klass = Class.new(endpoint) do
             cache true
-            cache_options expires_in: 12
+            cache_options do |res|
+              {expires_in: 12}
+            end
           end
           inst = klass.new
           expect(Dummy.cache).to receive(:write).with(inst.cache_key, instance_of(Hash), cache_options)
