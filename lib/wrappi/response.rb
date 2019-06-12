@@ -20,7 +20,7 @@ module Wrappi
     end
 
     def body
-      @body ||= request.parse
+      @body ||= parse
     end
 
     def success?
@@ -51,6 +51,18 @@ module Wrappi
         uri: uri,
         success: success?
       }
+    end
+
+    def parse
+      request.parse
+    rescue
+      json_parse
+    end
+    
+    def json_parse
+      JSON.parse(raw_body)
+    rescue
+      raw_body
     end
 
     def method_missing(method_name, *arguments, &block)
