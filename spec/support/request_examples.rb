@@ -105,4 +105,75 @@ shared_examples 'request_examples' do
     end
   end
 
+  describe 'call' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+          path '/dummy_basic_auth'
+        end
+        klass.new(params)
+      end
+      it "returns false" do
+        expect(subject.call).to be false 
+      end
+    end
+    context 'successful response' do
+      it 'returns body' do
+        expect(subject.call).to be_a Hash
+      end
+    end
+  end
+  describe '::call' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+                  path '/dummy_basic_auth'
+                end
+      end
+      it "returns false" do
+        expect(subject.call(params)).to be false 
+      end
+    end
+    context 'successful response' do
+      it 'returns body' do
+        expect(subject.class.call).to be_a Hash
+      end
+    end
+  end
+  describe 'call!' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+          path '/dummy_basic_auth'
+        end
+        klass.new(params)
+      end
+      it "returns false" do
+        expect{ subject.call! }.to raise_error 
+      end
+    end
+    context 'successful response' do
+      it 'returns body' do
+        expect(subject.call).to be_a Hash
+      end
+    end
+  end
+  describe '::call!' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+                  path '/dummy_basic_auth'
+                end
+      end
+      it "returns false" do
+        expect {subject.call!(params) }.to raise_error 
+      end
+    end
+    context 'successful response' do
+      it 'returns body' do
+        expect(subject.class.call!).to be_a Hash
+      end
+    end
+  end
+
 end

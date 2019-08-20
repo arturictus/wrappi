@@ -19,6 +19,8 @@ module Wrappi
       basic_auth: proc { client.basic_auth }
     }
   )
+    class UnsuccessfulResponse < StandardError; end
+
     attr_reader :input_params, :options
     def initialize(input_params = {}, options = {})
       @input_params = input_params
@@ -29,10 +31,22 @@ module Wrappi
       new(*args).call
     end
 
+    def self.call!(*args)
+      new(*args).call!
+    end
+    def call
+      return false unless success?
+      body
+    end
+    
+    def call!
+      raise UnsuccessfulResponse unless success?
+      body
+    end
+    
     def response
       @response ||= Executer.call(self)
     end
-    alias_method :call, :response
 
     def body; response.body end
     def success?; response.success? end
