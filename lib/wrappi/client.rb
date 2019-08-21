@@ -19,6 +19,7 @@ module Wrappi
     config_accessor(:cache)
     config_accessor(:async_handler) { AsyncHandler }
     config_accessor(:basic_auth)
+    config_accessor(:parser)
 
     def self.setup
       yield(self)
