@@ -8,6 +8,7 @@ module Wrappi
   class TimeoutError < StandardError; end
   class NotAuthorizedAccessError < StandardError; end
   class JsonParseError < StandardError; end
+  class UnsuccessfulResponse < StandardError; end
 end
 
 require 'wrappi/async_job'
