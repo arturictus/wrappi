@@ -106,7 +106,7 @@ GithubCLI::User.body(username: 'sdfsdfasdjfojaspdjfpsajdpfoijsapdofijsadf')
 
 ##### ::call
 
-returns `false` if unsuccesful and instance if succesful
+returns `false` if unsuccessful and instance if successful
 
 ```ruby
 if req = GithubCLI::User.call(username: 'arturictus')
