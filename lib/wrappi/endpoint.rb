@@ -54,7 +54,7 @@ module Wrappi
     end
     
     def call!
-      raise UnsuccessfulResponse unless success?
+      raise UnsuccessfulResponse.new(self) unless success?
       self
     end
     

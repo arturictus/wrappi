@@ -96,7 +96,7 @@ end
 ```
 ##### ::call!
 
-Raises error if unsuccessful returns instance if successful
+Raises error if unsuccessful, returns instance if successful
 
 ```ruby
 begin
@@ -105,6 +105,17 @@ begin
 rescue => Wrappi::UnsuccessfulResponse
   # Handle error or not
 end
+```
+
+The error:
+
+```ruby
+GithubCLI::User.call!(username: 'sdfsdfasdjfojaspdjfpsajdpfoijsapdofijsadf')
+# Wrappi::UnsuccessfulResponse ()
+#     raw_body: {"message":"Not Found","documentation_url":"https://developer.github.com/v3/users/#get-a-single-user"}
+#     code: 404
+#     uri: https://api.github.com/users/sdfsdfasdjfojaspdjfpsajdpfoijsapdofijsadf
+#     success: false
 ```
 
 #### Async
