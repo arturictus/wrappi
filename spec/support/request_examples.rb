@@ -105,4 +105,130 @@ shared_examples 'request_examples' do
     end
   end
 
+  describe 'call' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+          path '/dummy_basic_auth'
+        end
+        klass.new(params)
+      end
+      it "returns false" do
+        expect(subject.call).to be false 
+      end
+    end
+    context 'successful response' do
+      it 'returns instance' do
+        expect(subject.call).to respond_to :success?
+      end
+    end
+  end
+  describe '::call' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+                  path '/dummy_basic_auth'
+                end
+      end
+      it "returns false" do
+        expect(subject.call(params)).to be false 
+      end
+    end
+    context 'successful response' do
+      it 'returns instance' do
+        expect(subject.class.call).to respond_to :success?
+      end
+    end
+  end
+  describe 'call!' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+          path '/dummy_basic_auth'
+        end
+        klass.new(params)
+      end
+      it "returns false" do
+        expect{ subject.call! }.to raise_error 
+      end
+    end
+    context 'successful response' do
+      it 'returns instance' do
+        expect(subject.call).to respond_to :success?
+      end
+    end
+  end
+  describe '::call!' do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+                  path '/dummy_basic_auth'
+                end
+      end
+      it "returns false" do
+        expect {subject.call!(params) }.to raise_error 
+      end
+    end
+    context 'successful response' do
+      it 'returns instance' do
+        expect(subject.class.call!).to respond_to :success?
+      end
+    end
+  end
+
+  describe "::body" do
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+                  path '/dummy_basic_auth'
+                end
+      end
+      it "returns body" do
+        expect(subject.body(params)).to be_a String
+        expect(subject.body(params)).to include "Access denied"
+      end
+    end
+    context 'successful response' do
+      it 'returns body' do
+        expect(subject.class.body).to be_a Hash
+      end
+    end
+  end
+
+  describe "#on_success | #on_error" do
+    it "executes on success block if is success response" do
+      var = 0
+      success = nil
+      out = subject.on_success do |endpoint|
+                      var = 1
+                      success = endpoint.success?
+                    end.on_error do |endpoint|
+                      raise "You should not go this way"
+                    end
+      expect(var).to be 1
+      expect(success).to be true
+      expect(out).to respond_to :success? # is endpoint
+    end
+    context 'unsuccessful response' do
+      subject do
+        klass = Class.new(endpoint) do
+                  path '/dummy_basic_auth'
+                end
+        klass.new
+      end
+      it "executes on_error block if is unsuccessful response" do
+        var = 0
+        success = nil
+        out = subject.on_success do |endpoint|
+                        raise "You should not go this way"
+                      end.on_error do |endpoint|
+                        var = -1
+                        success = endpoint.success?
+                      end
+        expect(var).to be -1
+        expect(success).to be false
+        expect(out).to respond_to :success? # is endpoint
+      end
+    end
+  end
 end

@@ -30,8 +30,10 @@ Or install it yourself as:
 
 __Github example:__
 
+You can test this examples running `bin/console`
+
 ```ruby
-module GithubAPI
+module GithubCLI
   class Client < Wrappi::Client
     setup do |config|
       config.domain = 'https://api.github.com'
@@ -51,11 +53,90 @@ end
 ```
 
 ```ruby
-user = GithubAPI::User.new(username: 'arturictus')
+user = GithubCLI::User.new(username: 'arturictus')
 user.success? # => true
 user.error? # => false
 user.status_code # => 200
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+```
+
+### #success?
+
+The next behaviours are using `#success?` method. You can override by redefining your own success?
+
+The current `#success?` is defined like this:
+
+_wrappi/response.rb_
+```ruby
+  def success?
+    @success ||= request.code < 300 && request.code >= 200
+  end
+```
+
+Overrride your own in Endpoint
+```ruby
+  def success?
+    response.status == 201
+  end
+```
+
+##### #on_success | #on_error
+
+```ruby
+GithubCLI::User.new(username: 'arturictus')
+               .on_success do |inst|
+                 inst.status_code # => 200
+                 inst.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+                 # do something useful
+               end.on_error do |inst|
+                 puts "Error retrieving use"
+               end
+```
+
+##### ::body
+If you just need to retrieve the body and handle the error response on your side
+
+```ruby
+GithubCLI::User.body(username: 'arturictus') # => {"login"=>"arturictus", "id"=>1930175, ...}
+```
+```ruby
+GithubCLI::User.body(username: 'sdfsdfasdjfojaspdjfpsajdpfoijsapdofijsadf')
+# => {"message"=>"Not Found", "documentation_url"=>"https://developer.github.com/v3/users/#get-a-single-user"}
+```
+
+##### ::call
+
+returns `false` if unsuccesful and instance if succesful
+
+```ruby
+if req = GithubCLI::User.call(username: 'arturictus')
+  req.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+else
+  # Handle error
+end
+```
+##### ::call!
+
+Raises error if unsuccessful, returns instance if successful
+
+```ruby
+begin
+  req = GithubCLI::User.call!(username: 'arturictus')
+  req.body # => {"login"=>"arturictus", "id"=>1930175, ...}
+rescue => Wrappi::UnsuccessfulResponse
+  # Handle error or not
+end
+```
+
+The error:
+
+```ruby
+GithubCLI::User.call!(username: 'sdfsdfasdjfojaspdjfpsajdpfoijsapdofijsadf')
+# Wrappi::UnsuccessfulResponse ()
+#     raw_body: {"message":"Not Found","documentation_url":"https://developer.github.com/v3/users/#get-a-single-user"}
+#     code: 404
+#     uri: https://api.github.com/users/sdfsdfasdjfojaspdjfpsajdpfoijsapdofijsadf
+#     success: false
 ```
 
 #### Async
