@@ -6,7 +6,7 @@
 Making APIs fun again!
 
 Wrappi is a Framework to create API clients. The intention is to bring the best practices and standardize how API clients behave.
-It allows to create API clients in a declarative way improving readability and unifying the behavior. It abstracts complex operations like caching, retries background requests and error handling.
+It allows to create API clients in a declarative way improving readability and unifying the behavior. It abstracts complex operations like caching, retries, background requests and error handling.
 
 Enjoy!
 
