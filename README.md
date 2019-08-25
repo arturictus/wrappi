@@ -59,6 +59,27 @@ user.error? # => false
 user.status_code # => 200
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 ```
+
+### #success?
+
+The next behaviours are using `#success?` method. You can override by redefining your own success?
+
+The current `#success?` is defined like this:
+
+_wrappi/response.rb_
+```ruby
+  def success?
+    @success ||= request.code < 300 && request.code >= 200
+  end
+```
+
+Overrride your own in Endpoint
+```ruby
+  def success?
+    response.status == 201
+  end
+```
+
 ##### #on_success | #on_error
 
 ```ruby
