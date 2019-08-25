@@ -75,8 +75,14 @@ _wrappi/response.rb_
 
 Overrride your own in Endpoint
 ```ruby
-  def success?
-    response.status == 201
+  class User < Wrappi::Endpoint
+    client Client
+    verb :get
+    path "users/:username"
+
+    def success?
+      response.status == 200
+    end
   end
 ```
 
