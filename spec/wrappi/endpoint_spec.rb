@@ -85,11 +85,15 @@ module Wrappi
         klass.setup do
           path "v2/users/:id"
           verb :get
+          async_callback do
+            "hello"
+          end
         end
 
         inst = klass.new(id: 1)
         expect(inst.url).to match "v2/users/1"
         expect(inst.verb).to eq :get
+        expect(inst.send(:async_callback).call).to eq "hello"
       end
     end
 
