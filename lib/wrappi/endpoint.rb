@@ -38,6 +38,10 @@ module Wrappi
       new(*args).body
     end
 
+    def self.setup(&block)
+      instance_exec(&block)
+    end
+
     def on_success(&block)
       block.call(self) if success?
       self  

@@ -74,6 +74,25 @@ module Wrappi
       end
     end
 
+    describe "::setup" do
+      it "can modify configuration from outside with ::setup" do
+        klass = Class.new(described_class) do
+          client Dummy
+          verb :post
+          path "/users/:id"
+        end
+
+        klass.setup do
+          path "v2/users/:id"
+          verb :get
+        end
+
+        inst = klass.new(id: 1)
+        expect(inst.url).to match "v2/users/1"
+        expect(inst.verb).to eq :get
+      end
+    end
+
     describe '#url' do
       it 'domain has path' do
         client = Class.new(Wrappi::Client) do
