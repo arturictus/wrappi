@@ -4,8 +4,9 @@ module Wrappi
   # https://github.com/httprb/http/wiki/Response-Handling
   class Response
 
-    attr_reader :block
-    def initialize(&block)
+    attr_reader :block, :endpoint_klass
+    def initialize(endpoint_klass, &block)
+      @endpoint_klass = endpoint_klass
       @block = block
     end
 
@@ -24,7 +25,7 @@ module Wrappi
     end
 
     def success?
-      @success ||= request.code < 300 && request.code >= 200
+      @success ||= endpoint_klass.success?(request)
     end
 
     def error?

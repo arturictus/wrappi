@@ -97,6 +97,31 @@ module Wrappi
       end
     end
 
+    describe "inherited" do
+      it 'inherits other class settings' do
+        klass = Class.new(described_class) do
+          client Dummy
+          verb :post
+          path "/users/:id"
+          async_callback { "hello" }
+          around_request { "hello" }
+          retry_if { "hello" }
+          cache_options { "hello" }
+        end
+
+        inherited = Class.new(klass) do
+          path "/hello"
+        end
+        inst = inherited.new
+        expect(inst.url).to match "/hello"
+        expect(inst.verb).to eq :post
+        expect(inst.send(:async_callback).call).to eq "hello"
+        expect(inst.around_request.call).to eq "hello"
+        expect(inst.retry_if.call).to eq "hello"
+        expect(inst.cache_options.call).to eq "hello"
+      end
+    end
+
     describe '#url' do
       it 'domain has path' do
         client = Class.new(Wrappi::Client) do

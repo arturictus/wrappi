@@ -39,7 +39,7 @@ module Wrappi
     end
 
     def make_request
-      res = Response.new { Request.new(endpoint).call }
+      res = Response.new(endpoint.class) { Request.new(endpoint).call }
       around_request.call(res, endpoint)
       res.called? ? res : UncalledRequest.new
     end

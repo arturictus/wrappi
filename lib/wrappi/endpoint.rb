@@ -20,12 +20,8 @@ module Wrappi
     }
   )
 
-    attr_reader :input_params, :options
-    def initialize(input_params = {}, options = {})
-      @input_params = input_params
-      @options = options
-    end
-
+    ##############    ClassMethods     ################
+    # ============ API class metnods ================
     def self.call(*args)
       new(*args).call
     end
@@ -41,6 +37,46 @@ module Wrappi
     def self.setup(&block)
       instance_exec(&block)
     end
+
+    # =============      Configs     =================
+    def self.async_callback(&block)
+      @async_callback = block
+    end
+    
+    def self.around_request(&block)
+      @around_request = block
+    end
+    
+    def self.retry_if(&block)
+      @retry_if = block
+    end
+    
+    def self.cache_options(&block)
+      @cache_options = block
+    end
+    
+    # =============      Inheritance     =================
+    def self.inherited(subclass)
+      super(subclass)
+      subclass.instance_variable_set(:@async_callback, @async_callback)
+      subclass.instance_variable_set(:@around_request, @around_request)
+      subclass.instance_variable_set(:@retry_if, @retry_if)
+      subclass.instance_variable_set(:@cache_options, @cache_options)
+    end
+
+    # ============== success behaviour   ===================
+    # overridable
+    def self.success?(request)
+      request.code >= 200 && request.code < 300
+    end
+    #######################################################
+    
+    attr_reader :input_params, :options
+    def initialize(input_params = {}, options = {})
+      @input_params = input_params
+      @options = options
+    end
+
 
     def on_success(&block)
       block.call(self) if success?
@@ -92,23 +128,6 @@ module Wrappi
       end.to_s
     end
 
-
-    def self.async_callback(&block)
-      @async_callback = block
-    end
-
-    def self.around_request(&block)
-      @around_request = block
-    end
-
-    def self.retry_if(&block)
-      @retry_if = block
-    end
-
-    def self.cache_options(&block)
-      @cache_options = block
-    end
-
     def perform_async_callback(async_options = {})
       instance_exec(async_options, &async_callback)
     end
@@ -118,6 +137,7 @@ module Wrappi
       @cache_key ||= "[#{verb.to_s.upcase}]##{url}#{params_cache_key}"
     end
 
+    
     def around_request
       self.class.instance_variable_get(:@around_request)
     end
@@ -125,6 +145,7 @@ module Wrappi
     def retry_if
       self.class.instance_variable_get(:@retry_if)
     end
+
     def cache_options
       self.class.instance_variable_get(:@cache_options)
     end
@@ -134,7 +155,6 @@ module Wrappi
     def async_callback
       self.class.instance_variable_get(:@async_callback) || proc {}
     end
-
 
     def logger
       client.logger
