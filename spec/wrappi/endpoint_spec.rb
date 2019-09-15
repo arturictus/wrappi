@@ -74,6 +74,54 @@ module Wrappi
       end
     end
 
+    describe "::setup" do
+      it "can modify configuration from outside with ::setup" do
+        klass = Class.new(described_class) do
+          client Dummy
+          verb :post
+          path "/users/:id"
+        end
+
+        klass.setup do
+          path "v2/users/:id"
+          verb :get
+          async_callback do
+            "hello"
+          end
+        end
+
+        inst = klass.new(id: 1)
+        expect(inst.url).to match "v2/users/1"
+        expect(inst.verb).to eq :get
+        expect(inst.send(:async_callback).call).to eq "hello"
+      end
+    end
+
+    describe "inherited" do
+      it 'inherits other class settings' do
+        klass = Class.new(described_class) do
+          client Dummy
+          verb :post
+          path "/users/:id"
+          async_callback { "hello" }
+          around_request { "hello" }
+          retry_if { "hello" }
+          cache_options { "hello" }
+        end
+
+        inherited = Class.new(klass) do
+          path "/hello"
+        end
+        inst = inherited.new
+        expect(inst.url).to match "/hello"
+        expect(inst.verb).to eq :post
+        expect(inst.send(:async_callback).call).to eq "hello"
+        expect(inst.around_request.call).to eq "hello"
+        expect(inst.retry_if.call).to eq "hello"
+        expect(inst.cache_options.call).to eq "hello"
+      end
+    end
+
     describe '#url' do
       it 'domain has path' do
         client = Class.new(Wrappi::Client) do

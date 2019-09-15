@@ -60,16 +60,16 @@ user.status_code # => 200
 user.body # => {"login"=>"arturictus", "id"=>1930175, ...}
 ```
 
-### #success?
+#### #success?
 
 The next behaviours are using `#success?` method. You can override by redefining your own success?
 
 The current `#success?` is defined like this:
 
-_wrappi/response.rb_
+_wrappi/endpoint.rb_
 ```ruby
-  def success?
-    @success ||= request.code < 300 && request.code >= 200
+  def self.success?(request)
+    request.code < 300 && request.code >= 200
   end
 ```
 
@@ -80,8 +80,8 @@ Overrride your own in Endpoint
     verb :get
     path "users/:username"
 
-    def success?
-      response.status == 200
+    def self.success?(request)
+      request.status == 200
     end
   end
 ```
@@ -180,7 +180,7 @@ Github::User.new(username: 'arturictus').async(create: true, set: { wait: 10.min
 ```
 
 #### Cache
-You can enable cache per endpoint.
+You can enable cache per endpoint. It depends on `::success?` method to determine if it will be cached or nor.
 
 Set the cache Handler in your client.
 It must behave like `Rails.cache` and respond to:
@@ -243,8 +243,8 @@ This will retry if status code is not `200`
     client Client
     verb :get
     path "users/:username"
-    retry_if do |response, endpoint|
-      endpoint.status_code != 200
+    retry_if do |response|
+      response.code != 200
     end
   end
 ```
@@ -659,7 +659,42 @@ user = GithubCLI.user(username: 'arturictus')
 user.success?
 ```
 
-### In your project
+#### Customization in you parent project
+
+Once you created a gem Wrappi allows to parent projects to customize endpoints without having to change the gem's code.
+
+example customizing `GithubCLI::User`
+
+```ruby
+GithubCLI::User.setup do
+  cache true
+  async_callback do |opts|
+    if success?
+      # do something
+    end
+  end
+end
+```
+
+Example customizing all the Endpoints, adding loging to all the requests and changing client depending of enviroment:
+
+```ruby
+GithubCLI::Endpoint.setup do
+  client do
+    if ENV['production']
+      GithubCLI::Client
+    else
+      GithubCLI::MyStagingClient
+    end
+  end
+
+  around_request do |request, endpoint|
+    endpoint.logger.info("making a request to #{endpoint.url} with params: #{endpoint.consummated_params}")
+    request.call # IMPORTANT
+    endpoint.logger.info("response status is: #{request.status_code}")
+  end
+end
+```
 
 ## The HTTP clients war
 
