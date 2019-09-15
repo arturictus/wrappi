@@ -676,10 +676,18 @@ GithubCLI::User.setup do
 end
 ```
 
-example customizing all the Endpoints, adding loging to all the requests:
+Example customizing all the Endpoints, adding loging to all the requests and changing client depending of enviroment:
 
 ```ruby
 GithubCLI::Endpoint.setup do
+  client do
+    if ENV['production']
+      GithubCLI::Client
+    else
+      GithubCLI::MyStagingClient
+    end
+  end
+
   around_request do |request, endpoint|
     endpoint.logger.info("making a request to #{endpoint.url} with params: #{endpoint.consummated_params}")
     request.call # IMPORTANT
