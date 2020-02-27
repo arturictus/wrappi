@@ -4,7 +4,7 @@ module Wrappi
     :verb, :client, :path, :default_params,
     :headers, :follow_redirects, :basic_auth,
     :body_type, :retry_options, :cache, #:cache_options,
-    :async_callback,
+    :async_callback, :parser,
     default_config: {
       verb: :get,
       client: proc { raise 'client not set' }, # TODO: add proper error
@@ -16,7 +16,8 @@ module Wrappi
       cache: proc { options[:cache] },
       # cache_options: {},
       async_callback: proc {},
-      basic_auth: proc { client.basic_auth }
+      basic_auth: proc { client.basic_auth },
+      parser: proc { client.parser }
     }
   )
 
@@ -102,11 +103,18 @@ module Wrappi
       @response ||= Executer.call(self)
     end
 
-    def body; response.body end
+    def body
+      if parser
+        parser.call(response)
+      else
+        response.body 
+      end
+    end
     def success?; response.success? end
     def status; response.status end
     def error?; !success? end
     def flush; @response = nil end
+    def raw_body; response.raw_body end
 
     def async(async_options = {})
       async_handler.call(self, async_options)
